@@ -75,7 +75,7 @@ def sync_blocks(batch_size=1000):
     log.info(f'imported {block_counter} blocks')
 
 
-def sync_transactions2():
+def sync_transactions():
     api = get_client()
     queryset = Block.objects\
         .filter(transactions__isnull=True)\
@@ -187,89 +187,6 @@ def sync_transactions2():
     log.info(f'imported {addr_counter} addresses')
 
 
-def sync_transactions(batch_size=1000):
-    log.info('import transactions')
-    api = get_client()
-    qs = Block.objects.filter(transactions__isnull=True)
-    tx_objs = []
-    tx_counter = 0
-    for block_obj in qs:
-        tx_hashes = api.getblock(block_obj.hash, 1)['result']['tx']
-        for tx_idx, tx_hash in enumerate(tx_hashes):
-            tx_obj = Transaction(
-                hash=tx_hash,
-                block=block_obj,
-                idx=tx_idx
-            )
-            tx_objs.append(tx_obj)
-            tx_counter += 1
-            if tx_counter % batch_size == 0:
-                Transaction.objects.bulk_create(tx_objs, batch_size)
-                tx_objs = []
-    if tx_objs:
-        Transaction.objects.bulk_create(tx_objs, batch_size)
-
-
-def sync_outputs():
-    log.info('sync outputs')
-    api = get_client()
-
-    query = Transaction.objects\
-        .filter(outputs_for_tx__isnull=True)\
-        .order_by('block', 'idx')
-
-    out_counter = 0
-    in_counter = 0
-
-    for tx_obj in query:
-        tx_data = api.getrawtransaction(tx_obj.hash, 1)['result']
-
-        if tx_data is None:
-            continue
-
-        # Create new outputs
-        for out_entry in tx_data['vout']:
-            value = out_entry.get('value')
-
-            try:
-                address = out_entry['scriptPubKey']['addresses'][0]
-            except KeyError:
-                address = None
-            out_idx = out_entry['n']
-            if address:
-                addr_obj, _ = Address.objects.get_or_create(address=address)
-            else:
-                addr_obj = None
-
-            Output.objects.create(
-                transaction=tx_obj,
-                out_idx=out_idx,
-                value=value,
-                address=addr_obj
-            )
-            out_counter += 1
-
-        # Create input and mark spent outputs
-        for vin_entry in tx_data['vin']:
-            txid = vin_entry.get('txid')
-            coinbase = vin_entry.get('coinbase')
-            vout = vin_entry.get('vout')
-            if txid:
-                out = Output.objects.get(transaction__hash=txid, out_idx=vout)
-                Input.objects.create(
-                    transaction=tx_obj,
-                    spends=out,
-                    coinbase=False
-                )
-                in_counter += 1
-                out.spent = True
-                out.save()
-            if coinbase:
-                Input.objects.create(transaction=tx_obj, coinbase=True)
-                in_counter += 1
-    log.info(f'imported {out_counter} outputs and {in_counter} inputs')
-
-
 def sync_streams():
     log.info('sync streams')
     api = get_client()
@@ -292,8 +209,7 @@ if __name__ == '__main__':
         start = timeit.default_timer()
         clean_reorgs()
         sync_blocks()
-        sync_transactions2()
-        # sync_outputs()
+        sync_transactions()
         sync_streams()
         stop = timeit.default_timer()
         runtime = stop - start
