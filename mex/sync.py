@@ -36,7 +36,7 @@ def clean_reorgs(horizon=HORIZON):
     db_horizon = db_blocks[-1][0]
 
     api = get_client()
-    node_data = api.listblocks(f"{db_horizon}-{db_height}", False)['result']
+    node_data = api.listblocks(f"{db_horizon}-{db_height}", False)
     node_blocks = [(b['height'], b['hash']) for b in reversed(node_data)]
     difference = set(db_blocks).difference(set(node_blocks))
 
@@ -52,7 +52,7 @@ def sync_blocks(batch_size=1000):
     api = get_client()
 
     db_height = Block.get_height()
-    node_height = api.getblockcount()['result']
+    node_height = api.getblockcount()
     if db_height == node_height:
         log.info('no new blocks to sync')
         return
@@ -63,7 +63,7 @@ def sync_blocks(batch_size=1000):
 
     for batch in batchwise(range(db_height + 1, node_height), batch_size=batch_size):
         block_objs = []
-        for block_data in api.listblocks(batch, verbose=False)['result']:
+        for block_data in api.listblocks(batch, False):
             del block_data['confirmations']
             block_data['time'] = datetime.utcfromtimestamp(
                 block_data['time']).replace(tzinfo=pytz.utc)
@@ -93,7 +93,7 @@ def sync_transactions():
 
     for block_obj in queryset:
 
-        block_data = api.getblock(block_obj.hash, 4)['result']
+        block_data = api.getblock(block_obj.hash, 4)
         tx_hashes = [item['txid'] for item in block_data['tx']]
         tx_objs = []
 
@@ -191,10 +191,10 @@ def sync_streams():
     log.info('sync streams')
     api = get_client()
     data = api.liststreams()
-    for entry in data['result']:
+    for entry in data:
         name = entry.pop('name')
         Stream.objects.update_or_create(name=name, defaults=entry)
-    log.info(f"imported/updated {len(data['result'])} streams")
+    log.info(f"imported/updated {len(data)} streams")
 
 
 if __name__ == '__main__':
