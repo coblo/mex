@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.db.models import Sum, Q
-from mex.models import Block, Transaction, Output, Address, Input, Stream
+from mex.models import Block, Transaction, Output, Address, Input
 from django.conf.locale.en import formats as en_formats
 
 
-en_formats.DATETIME_FORMAT = "Y-m-d H:m:s"
+en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -21,6 +20,10 @@ class TransactionInline(admin.TabularInline):
     verbose_name_plural = "Transactions"
     fields = ['hash', 'idx']
     readonly_fields = ('hash', 'idx')
+    show_change_link = True
+
+    class Media:
+        css = {"all": ("admin_tweaks.css",)}
 
     def has_add_permission(self, request):
         return False
@@ -31,11 +34,10 @@ class TransactionInline(admin.TabularInline):
 
 @admin.register(Block)
 class BlockAdmin(BaseModelAdmin):
-    list_display = (
-        'id', 'height', 'hash', 'miner', 'time', 'txcount',
-    )
-    readonly_fields = list_display
-    search_fields = ['miner', 'hash',]
+    list_display = 'height', 'hash', 'miner', 'time', 'txcount', 'size',
+    fields = list_display + ('merkleroot', )
+    readonly_fields = fields
+    search_fields = 'miner', 'hash',
     inlines = [TransactionInline]
 
 
@@ -44,8 +46,14 @@ class InputInline(admin.TabularInline):
     model = Input
     verbose_name = "Input"
     verbose_name_plural = "Inputs"
-    fields = ['transaction', 'spends', 'value', 'coinbase']
-    readonly_fields = fields
+    fieldsets = (
+        ('Hello World', {'fields': ('transaction', 'spends', 'value', 'coinbase',)}),
+    )
+    readonly_fields = 'transaction', 'spends', 'value', 'coinbase',
+    show_change_link = True
+
+    class Media:
+        css = {"all": ("admin_tweaks.css",)}
 
     def has_add_permission(self, request):
         return False
@@ -61,6 +69,10 @@ class OutputInline(admin.TabularInline):
     verbose_name_plural = "Outputs"
     fields = ['transaction', 'out_idx', 'value', 'address', 'spent']
     readonly_fields = fields
+    show_change_link = True
+
+    class Media:
+        css = {"all": ("admin_tweaks.css",)}
 
     def has_add_permission(self, request):
         return False
@@ -111,35 +123,8 @@ class AddressAdmin(BaseModelAdmin):
 
     def get_queryset(self, request):
         qs = super(AddressAdmin, self).get_queryset(request)
-        return qs.annotate(
-            balance=Sum(
-                'outputs_for_addr__value',
-                filter=Q(outputs_for_addr__spent=False)
-            )
-        )
+        return qs.with_balance()
 
     def balance(self, obj):
         return obj.balance
     balance.admin_order_field = 'balance'
-
-
-@admin.register(Stream)
-class StreamAdmin(BaseModelAdmin):
-
-    list_display = [
-        'name',
-        'createtxid',
-        'creators',
-        'open',
-        'items',
-        'keys',
-        'publishers'
-    ]
-
-    readonly_fields = list_display + [
-        'confirmed',
-        'details',
-        'streamref',
-        'subscribed',
-        'synchronized'
-    ]
