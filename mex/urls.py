@@ -15,7 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from mex import views
 
 urlpatterns = [
+    path('', views.HomeView.as_view(), name='home'),
+    path('blocks/', views.BlockListView.as_view(), name='blocks'),
+    path('txs/', views.TransactionListView.as_view(), name='transactions'),
+    path('addrs/', views.AddressListView.as_view(), name='addresses'),
+    path('status/', views.StatusView.as_view(), name='status'),
+    path('block/<str:hash>', views.BlockDetailView.as_view(), name='block-detail'),
+    path('tx/<str:hash>', views.TransactionDetailView.as_view(), name='transaction-detail'),
+    path('addr/<str:address>', views.AddressDetailView.as_view(), name='address-detail'),
+    path('table/blocks', views.TableBlocks.as_view(), name='table-blocks'),
+    path('table/transactions', views.TableTransactions.as_view(), name='table-transactions'),
     path('admin/', admin.site.urls),
 ]
