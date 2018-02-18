@@ -1,3 +1,7 @@
 Django==2.0.2
-psycopg2==2.7.3.2
-mcrpc==0.2.1
+pytz==2018.3
+psycopg2==2.7.4
+mcrpc==0.2.2
+django-extensions==1.9.9
+django-tables2==1.19.0
+Fabric3==1.14.post1

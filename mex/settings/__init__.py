@@ -25,6 +25,8 @@ SECRET_KEY = '8f^y#642-u=fhnq(h45h-!2@1)whx$(c+3-rqu0&i)^5@63o(m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ADMINS = [('admin', 'example@example.org')]
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -37,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_tables2',
+    'django_extensions',
+
     'mex.apps.MexConfig',
 ]
 
@@ -64,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mex.context_processors.site_settings',
             ],
         },
     },
@@ -125,6 +132,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEX_BRAND = 'MEX Explorer'
 NODE_IP = '127.0.0.1'
 NODE_PORT = '8374'
 NODE_USER = 'testuser'

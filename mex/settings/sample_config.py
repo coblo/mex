@@ -15,6 +15,8 @@ DATABASES = {
     }
 }
 
+
+MEX_BRAND = 'MEX Explorer'
 NODE_IP = '127.0.0.1'
 NODE_PORT = '8374'
 NODE_USER = 'testuser'
