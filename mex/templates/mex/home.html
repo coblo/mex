@@ -1,0 +1,38 @@
+{% extends "mex/base.html" %}
+{% load render_table from django_tables2 %}
+{% block content %}
+    <h2 class="text-secondary mt-4">Latest Blocks:</h2>
+    <div class="row">
+        <div class="col-md-12 col-lg-8">
+            <div ic-poll="5s"
+                 ic-src="{% url 'table-blocks' %}"
+                 ic-disable-when-doc-hidden="true"
+                 ic-always-update="false"
+            >
+                {% render_table tables.0 'mex/table_simple.html' %}
+            </div>
+            <h2 class="text-secondary">Latest Transactions:</h2>
+            <div ic-poll="5s"
+                 ic-src="{% url 'table-transactions' %}"
+                 ic-disable-when-doc-hidden="true"
+                 ic-always-update="false"
+            >
+                {% render_table tables.1 'mex/table_simple.html' %}
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    About
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">MEX Explorer</h5>
+                    <p class="card-text">An open-source MultiChain explorer
+                        brought to you by the Content Blockchain Project.</p>
+                    <a href="https://github.com/coblo/mex" class="btn btn-primary">Github</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

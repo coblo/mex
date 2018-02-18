@@ -1,0 +1,43 @@
+{% extends "mex/base.html" %}
+{% block content %}
+    <h1 class="mt-4">Explorer Status</h1>
+    <div class="row mt-4">
+        <div class="col-xs-12 col-md-8">
+            <h2 class="text-secondary">Sync Status</h2>
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Node information
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-6">Version</dt>
+                        <dd class="col-6 text-right">{{ info.nodeversion }}</dd>
+
+                        <dt class="col-6">Protocol Version</dt>
+                        <dd class="col-6 text-right">{{ info.protocolversion }}</dd>
+
+                        <dt class="col-6">Blocks</dt>
+                        <dd class="col-6 text-right">{{ info.blocks }}</dd>
+
+                        <dt class="col-6">Peer Connections</dt>
+                        <dd class="col-6 text-right">{{ info.connections }}</dd>
+
+                        <dt class="col-6">Network</dt>
+                        <dd class="col-6 text-right">{{ info.description }}</dd>
+
+                        <dt class="col-6">Relayfee</dt>
+                        <dd class="col-6 text-right">{{ info.relayfee }} {{ settings.MEX_CURRENCY_SYMBOL }}</dd>
+                    </dl>
+                </div>
+            </div>
+            {#            <h2 class="text-secondary">Node information</h2>#}
+            {#            <ul>#}
+            {#                <li>#}
+            {#                    {{ info.nodeversion }}#}
+            {#                </li>#}
+            {#            </ul>#}
+        </div>
+    </div>
+{% endblock %}
