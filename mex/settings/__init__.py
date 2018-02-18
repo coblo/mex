@@ -133,6 +133,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEX_BRAND = 'MEX Explorer'
+MEX_SYNC_HORIZON = 300
 NODE_IP = '127.0.0.1'
 NODE_PORT = '8374'
 NODE_USER = 'testuser'

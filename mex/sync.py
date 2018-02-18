@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import pytz
+from django.conf import settings
+from mex.exceptions import SyncError
 from mex.rpc import get_client
-from mex.models import Block, Transaction, Output, Address, Input, Stream
+from mex.models import Block, Transaction, Output, Address, Input
 import logging
 
 from mex.tools import batchwise
@@ -10,10 +12,7 @@ from mex.tools import batchwise
 log = logging.getLogger('mex.sync')
 
 
-HORIZON = 100
-
-
-def clean_reorgs(horizon=HORIZON):
+def clean_reorgs(horizon=settings.MEX_SYNC_HORIZON):
     """
     Clean chain reorganizations up to `horizon` number of blocks in the past.
 
@@ -23,56 +22,88 @@ def clean_reorgs(horizon=HORIZON):
     blocks will automatically cascade throuth the datamodel and delete all
     dependant transactions, inputs and outputs.
     """
-    log.info('clean reorgs')
+    log.info('clean reorgs with horizon {}'.format(horizon))
+    api = get_client()
+
+    node_height = api.getblockcount()
+    db_height = Block.get_db_height()
+    if db_height > node_height:
+        log.warning('database is ahead of node')
+        return
+
     db_blocks = list(
         Block.objects
             .order_by('-height')
             .values_list('height', 'hash')[:horizon]
     )
     if not db_blocks:
+        log.info('database has no block data')
         return
 
     db_height = db_blocks[0][0]
     db_horizon = db_blocks[-1][0]
 
-    api = get_client()
-    node_data = api.listblocks(f"{db_horizon}-{db_height}", False)
+    horizon_range = "%s-%s" % (db_horizon, db_height)
+    node_data = api.listblocks(horizon_range, False)
     node_blocks = [(b['height'], b['hash']) for b in reversed(node_data)]
     difference = set(db_blocks).difference(set(node_blocks))
 
     if not difference:
+        log.info('no reorgs found')
         return
 
     fork_height = min(difference)[0]
-    log.info(f'db reorg from height {fork_height} - deleting stale blocks!')
+    log.info('database reorg from height %s' % fork_height)
     Block.objects.filter(height__gte=fork_height).delete()
 
 
 def sync_blocks(batch_size=1000):
-    api = get_client()
 
-    db_height = Block.get_height()
+    api = get_client()
+    db_height = Block.get_db_height()
     node_height = api.getblockcount()
+
     if db_height == node_height:
         log.info('no new blocks to sync')
         return
 
-    log.info(f'sync blocks {db_height+1}-{node_height}')
+    if db_height > node_height:
+        raise SyncError('database is ahead of node')
+
+    log.info('sync blocks %s-%s' % (db_height + 1, node_height))
 
     block_counter = 0
 
-    for batch in batchwise(range(db_height + 1, node_height), batch_size=batch_size):
+    existing_addrs = set(Address.objects.values_list('address', flat=True))
+
+    from_to = range(db_height + 1, node_height)
+    for batch in batchwise(from_to, batch_size=batch_size):
         block_objs = []
-        for block_data in api.listblocks(batch, False):
-            del block_data['confirmations']
-            block_data['time'] = datetime.utcfromtimestamp(
-                block_data['time']).replace(tzinfo=pytz.utc)
-            block_objs.append(Block(**block_data))
+        for block_data in api.listblocks(batch, True):
+
+            miner_addr = block_data['miner']
+            if miner_addr not in existing_addrs:
+                Address.objects.create(address=miner_addr)
+                existing_addrs.add(miner_addr)
+
+            blocktime = datetime.fromtimestamp(block_data['time'], tz=pytz.utc)
+
+            block_objs.append(
+                Block(
+                    height=block_data['height'],
+                    hash=block_data['hash'],
+                    merkleroot=block_data['merkleroot'],
+                    miner_id=miner_addr,
+                    time=blocktime,
+                    txcount=block_data['txcount'],
+                    size=block_data['size'],
+                )
+            )
             block_counter += 1
 
         Block.objects.bulk_create(block_objs, batch_size=batch_size)
 
-    log.info(f'imported {block_counter} blocks')
+    log.info('imported %s blocks' % block_counter)
 
 
 def sync_transactions():
@@ -85,7 +116,7 @@ def sync_transactions():
     if not queryset.exists():
         return
     addrs_existing = set(Address.objects.values_list('address', flat=True))
-    log.info(f'sync transactions from {queryset.count()} blocks')
+    log.info('sync transactions from %s blocks' % queryset.count())
     tx_counter = 0
     out_counter = 0
     in_counter = 0
@@ -160,7 +191,8 @@ def sync_transactions():
                 coinbase = vin_entry.get('coinbase')
                 vout = vin_entry.get('vout')
                 if txid:
-                    out = Output.objects.get(transaction__hash=txid, out_idx=vout)
+                    out = Output.objects.get(
+                        transaction__hash=txid, out_idx=vout)
 
                     in_objs.append(
                         Input(
@@ -177,24 +209,10 @@ def sync_transactions():
                     in_counter += 1
         Input.objects.bulk_create(in_objs)
 
-    # Output.objects\
-    #     .filter(inputs_for_output__isnull=False)\
-    #     .update(spent=True)
-
-    log.info(f'imported {tx_counter} transactions')
-    log.info(f'imported {out_counter} outputs')
-    log.info(f'imported {in_counter} inputs')
-    log.info(f'imported {addr_counter} addresses')
-
-
-def sync_streams():
-    log.info('sync streams')
-    api = get_client()
-    data = api.liststreams()
-    for entry in data:
-        name = entry.pop('name')
-        Stream.objects.update_or_create(name=name, defaults=entry)
-    log.info(f"imported/updated {len(data)} streams")
+    log.info('imported %s transactions' % tx_counter)
+    log.info('imported %s outputs' % out_counter)
+    log.info('imported %s inputs' % in_counter)
+    log.info('imported %s addresses' % addr_counter)
 
 
 if __name__ == '__main__':
@@ -205,13 +223,15 @@ if __name__ == '__main__':
     init_logging()
 
     while True:
-        log.info(f'starting sync round')
+        log.info('starting sync round')
         start = timeit.default_timer()
-        clean_reorgs()
-        sync_blocks()
-        sync_transactions()
-        sync_streams()
-        stop = timeit.default_timer()
-        runtime = stop - start
-        log.info(f'finished sync round in {runtime} seconds')
+        try:
+            clean_reorgs()
+            sync_blocks()
+            sync_transactions()
+            stop = timeit.default_timer()
+            runtime = stop - start
+            log.info('finished sync round in %s seconds' % runtime)
+        except Exception as e:
+            log.error(repr(e))
         time.sleep(10)
