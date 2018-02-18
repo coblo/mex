@@ -6,15 +6,16 @@ from fabric.api import task, local
 sys.path.append(os.path.dirname(__file__))
 from mex.settings import BASE_DIR
 
-DIR_MIGRATIONS = os.path.join(BASE_DIR, 'mex', 'migrations')
+
+DIR_MIGRATIONS = os.path.join(BASE_DIR, 'migrations')
 
 
 @task
 def reset():
     """Reset local development development environment"""
 
-    print('Delete existing migrations')
     if os.path.exists(DIR_MIGRATIONS):
+        print('Delete existing migrations at: %s' % DIR_MIGRATIONS)
         shutil.rmtree(DIR_MIGRATIONS)
 
     print('Reset database')
