@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 def init_logging(disable_libs=True):
     """Activate simple console debug logging"""
 
-    log_format = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+    log_format = '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=log_format)
 
     if disable_libs:
