@@ -132,6 +132,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+DJANGO_TABLES2_TEMPLATE = 'mex/table.html'
+
 MEX_BRAND = 'MEX Explorer'
 MEX_SYNC_HORIZON = 300
 NODE_IP = '127.0.0.1'
