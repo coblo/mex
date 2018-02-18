@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_tables2 import tables, Column, DateTimeColumn, LinkColumn
@@ -63,4 +64,7 @@ class AddressTable(tables.Table):
         attrs = {'class': 'table table-sm table-striped table-hover'}
         order_by = ('-balance',)
         orderable = False
+
+    def render_balance(self, value):
+        return '%s %s' % (value, settings.MEX_SYMBOL)
 
