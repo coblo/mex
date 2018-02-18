@@ -1,0 +1,9 @@
+/* Hide inline headers. Curtesy: https://stackoverflow.com/a/5556813/51627 */
+td.original p {
+  visibility: hidden
+}
+
+.inline-group .tabular tr.has_original td {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
