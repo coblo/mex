@@ -42,7 +42,7 @@ class Transaction(models.Model):
     hash = fields.HashField(max_length=32, unique=True)
     block = models.ForeignKey(
         Block, on_delete=CASCADE, null=True, related_name='transactions')
-    idx = models.PositiveSmallIntegerField()
+    idx = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
         ordering = ('-block', 'idx')
