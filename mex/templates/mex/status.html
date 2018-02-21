@@ -12,7 +12,18 @@
                 </div>
                 <div class="card-body">
                     <dl class="row">
+                        <dt class="col-6">Chain</dt>
+                        <dd class="col-6 text-right">{{ info.chainname }}</dd>
+                        <dt class="col-6">Description</dt>
+                        <dd class="col-6 text-right">{{ info.description }}</dd>
+
+                        <dt class="col-6">Testnet</dt>
+                        <dd class="col-6 text-right">{{ info.testnet }}</dd>
+
                         <dt class="col-6">Version</dt>
+                        <dd class="col-6 text-right">{{ info.version }}</dd>
+
+                        <dt class="col-6">Node Version</dt>
                         <dd class="col-6 text-right">{{ info.nodeversion }}</dd>
 
                         <dt class="col-6">Protocol Version</dt>
@@ -23,9 +34,6 @@
 
                         <dt class="col-6">Peer Connections</dt>
                         <dd class="col-6 text-right">{{ info.connections }}</dd>
-
-                        <dt class="col-6">Network</dt>
-                        <dd class="col-6 text-right">{{ info.description }}</dd>
 
                         <dt class="col-6">Relayfee</dt>
                         <dd class="col-6 text-right">{{ info.relayfee }} {{ settings.MEX_CURRENCY_SYMBOL }}</dd>
