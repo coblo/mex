@@ -6,7 +6,7 @@ from django_tables2 import MultiTableMixin, SingleTableView
 
 from mex.rpc import get_client
 from mex.tables import BlockTable, TransactionTable, AddressTable
-from mex.models import Block, Transaction, Address, Output
+from mex.models import Block, Transaction, Address, Stream, Output
 from mex.utils import public_key_to_address
 
 
@@ -66,6 +66,17 @@ class AddressListView(SingleTableView):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.with_balance()
+
+
+class StreamListView(TemplateView):
+    template_name = 'mex/stream_list.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        api = get_client()
+        streams = api.liststreams()
+        ctx['streams'] = sorted(streams, key=lambda k: -k['items'])
+        return ctx
 
 
 class BlockDetailView(DetailView):
@@ -153,3 +164,13 @@ class AddressDetailView(DetailView):
             })
         return ctx
 
+class StreamDetailView(TemplateView):
+
+    template_name = 'mex/stream_detail.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        api = get_client()
+        streams = api.liststreams()
+        ctx['streams'] = sorted(streams, key=lambda k: -k['items'])
+        return ctx

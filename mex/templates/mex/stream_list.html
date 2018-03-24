@@ -1,0 +1,22 @@
+{% extends "mex/base.html" %}
+{% block content %}
+    <div class="row mt-4">
+        <div class="col">
+            <h1 class="text-secondary">Streams</h1>
+            <table class="table table-sm table-striped table-hover">
+            <thead>
+                <tr><th>Name</th><th>Items</th><th>Open</th></tr>
+            </thead>
+            <tbody>
+                {% for stream in streams %}
+                    <tr>
+                        <td><a href="../stream/{{ stream.name }}">{{ stream.name }}</a></td>
+                        <td>{{ stream.items }}</td>
+                        <td>{{ stream.open }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -72,6 +72,20 @@ class Address(models.Model):
         return reverse('address-detail', args=[str(self.address)])
 
 
+class Stream(models.Model):
+
+    name = models.CharField(max_length=52, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('stream-detail', args=[str(self.name)])
+
+
 class Output(models.Model):
 
     transaction = models.ForeignKey(
