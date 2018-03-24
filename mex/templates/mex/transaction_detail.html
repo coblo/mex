@@ -6,7 +6,7 @@
     <table class="table">
         <tbody>
             <tr><th scope="row">Hash</th><td>{{ transaction.hash }}</td></tr>
-            <tr><th>Blockhash</th><td>{{ details.blockhash }}</td></tr>{# todo: verlinken#}
+            <tr><th>Blockhash</th><td><a href="../block/{{ details.blockhash }}">{{ details.blockhash }}</a></td></tr>
             <tr><th>Blocktime</th><td>{{ formattedBlocktime }}</td></tr>
             <tr><th>Confirmations</th><td>{{ details.confirmations }}</td></tr>
         </tbody>
@@ -38,7 +38,11 @@
             {% for vin in formattedVin %}
                 <tr>
                     <th scope="row">{{ vin.index }}</th>
-                    <td>{{ vin.transaction }}</td>
+                    {% if vin.transaction %}
+                        <td><a href="../tx/{{ vin.transaction }}">{{ vin.transaction }}</a></td>
+                    {% else %}
+                        <td>Generation</td>
+                    {% endif %}
                     <td>{{ vin.address }}</td>
                 </tr>
             {% endfor %}
@@ -58,7 +62,11 @@
             {% for vout in formattedVout %}
                 <tr>
                     <th scope="row">{{ vout.index }}</th>
-                    <td>{{ vout.transaction }}</td>
+                    {% if vout.transaction %}
+                        <td><a href="../tx/{{ vout.transaction }}">{{ vout.transaction }}</a></td>
+                    {% else %}
+                        <td>Not yet redeemed</td>
+                    {% endif %}
                     <td>{{ vout.address }}</td>
                     <td>{{ vout.amount }}</td>
                 </tr>

@@ -98,7 +98,7 @@ class TransactionDetailView(DetailView):
             ctx['formattedVin'].append({
                 'index': index,
                 'address': address,
-                'transaction': vin['txid'] if 'txid' in vin else 'Generation'
+                'transaction': vin['txid'] if 'txid' in vin else ''
             })
         for index, vout in enumerate(ctx['details']['vout']):
             address = 'N/A'
@@ -107,7 +107,7 @@ class TransactionDetailView(DetailView):
             ctx['formattedVout'].append({
                 'index': index,
                 'address': address,
-                'transaction': vin['txid'] if 'txid' in vin else 'Not yet redeemed',
+                'transaction': vin['txid'] if 'txid' in vin else '',
                 'amount': vout['value']
             })
         return ctx
