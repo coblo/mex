@@ -1,0 +1,9 @@
+div.raw-transaction-view {
+    background-color: #eeeeee;
+    word-wrap: break-word;
+    font-size: 0.8rem;
+}
+
+table tr:first-child th, table tr:first-child td {
+    border: none;
+}

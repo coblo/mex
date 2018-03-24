@@ -7,6 +7,9 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ settings.EXPLORER_NAME }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link rel="stylesheet" href="{% static 'transaction_details.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Fira+Mono"
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Oswald"
@@ -15,19 +18,6 @@
           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
           crossorigin="anonymous">
-    <style>
-        table {
-            font-size: 0.8rem;
-            font-family: 'Fira Mono', monospace;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            font-weight: normal;
-            padding: 0.3rem;
-        }
-
-    </style>
     <script defer
             src="//use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 
