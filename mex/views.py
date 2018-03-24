@@ -74,6 +74,14 @@ class BlockDetailView(DetailView):
     slug_field = 'hash'
     slug_url_kwarg = 'hash'
 
+    def get_context_data(self, **kwargs):
+        api = get_client()
+        ctx = super().get_context_data(**kwargs)
+        ctx['details'] = api.getblock(ctx['block'].hash, 1)
+        ctx['formattedtime'] = datetime.datetime.fromtimestamp(ctx['details']['time'])
+        ctx['num_transactions'] = len(ctx['details']['tx'])
+        return ctx
+
 
 class TransactionDetailView(DetailView):
     model = Transaction
