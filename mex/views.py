@@ -6,7 +6,7 @@ from django_tables2 import MultiTableMixin, SingleTableView
 
 from mex.rpc import get_client
 from mex.tables import BlockTable, TransactionTable, AddressTable
-from mex.models import Block, Transaction, Address
+from mex.models import Block, Transaction, Address, Output
 from mex.utils import public_key_to_address
 
 
@@ -125,3 +125,31 @@ class AddressDetailView(DetailView):
     model = Address
     slug_field = 'address'
     slug_url_kwarg = 'address'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        address = ctx['address'].address
+        ctx['amount_blocks'] = Block.objects.filter(miner=address).count()
+        api = get_client()
+        blocks = api.getinfo().blocks
+        ctx['miner'] = False
+        for perm in api.listpermissions("mine"):
+            if perm['address'] == address and perm['startblock'] < blocks and perm['endblock'] > blocks:
+                ctx['miner'] = True
+        ctx['admin'] = False
+        for perm in api.listpermissions("admin"):
+            if perm['address'] == address and perm['startblock'] < blocks and perm['endblock'] > blocks:
+                ctx['admin'] = True
+        qs = super().get_queryset()
+        ctx['balance'] = qs.with_balance().filter(address=address).first().balance
+        last_out = Output.objects.filter(address=address).order_by('-transaction__block__time')[:10]
+        ctx['last_tx'] = []
+        for out in last_out:
+            ctx['last_tx'].append({
+                'tx': out.transaction.hash,
+                'time': out.transaction.block.time,
+                'hash': out.transaction.block.hash,
+                'height': out.transaction.block.height
+            })
+        return ctx
+
