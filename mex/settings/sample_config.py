@@ -22,6 +22,8 @@ MEX_MINER = 'Miner'
 MEX_SYMBOL = 'CBL'
 MEX_CURRENCY = 'CoBlo'
 
+FOOTER_TEXT = "Footer Text"
+
 NODE_IP = '127.0.0.1'
 NODE_PORT = '8374'
 NODE_USER = 'testuser'

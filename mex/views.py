@@ -10,7 +10,6 @@ from mex.rpc import get_client
 from mex.tables import BlockTable, TransactionTable, AddressTable
 from mex.models import Block, Transaction, Address, Output
 from mex.utils import public_key_to_address
-from mex.settings.config import MEX_ADMIN, MEX_MINER, MEX_SYMBOL
 
 
 class StatusView(TemplateView):
@@ -105,7 +104,6 @@ class TransactionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
-        ctx['mex_symbol'] = MEX_SYMBOL
         ctx['details'] = api.getrawtransaction(ctx['transaction'].hash, 4)
         blockchain_params = api.getblockchainparams()
         pubkeyhash_version = blockchain_params['address-pubkeyhash-version']
@@ -143,9 +141,6 @@ class AddressDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['mex_admin'] = MEX_ADMIN
-        ctx['mex_miner'] = MEX_MINER
-        ctx['mex_symbol'] = MEX_SYMBOL
         address = ctx['address'].address
         ctx['amount_blocks'] = Block.objects.filter(miner=address).count()
         api = get_client()

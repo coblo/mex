@@ -68,7 +68,7 @@
                         <td>Not yet redeemed</td>
                     {% endif %}
                     <td>{{ vout.address }}</td>
-                    <td>{{ vout.amount }} {{ mex_symbol }}</td>
+                    <td>{{ vout.amount }} {{ settings.MEX_SYMBOL }}</td>
                 </tr>
             {% endfor %}
             </tbody>

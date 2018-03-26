@@ -7,13 +7,13 @@
         <tbody>
             <tr><th scope="row">Address</th><td>{{ address }}</td></tr>
             <tr><th>Blocks mined</th><td>{{ amount_blocks }}</td></tr>
-            <tr><th>Balance</th><td>{{ balance }} {{ mex_symbol }}</td></tr>
+            <tr><th>Balance</th><td>{{ balance }} {{ settings.MEX_SYMBOL }}</td></tr>
             <tr><th>Permissions</th><td>
                 {% if not admin and not miner %}
                     None
                 {% else %}
-                    {% if admin %}<span class="perm-batch">{{ mex_admin }}</span>{% endif %}
-                    {% if miner %}<span class="perm-batch">{{ mex_miner }}</span>{% endif %}
+                    {% if admin %}<span class="perm-batch">{{ settings.MEX_ADMIN }}</span>{% endif %}
+                    {% if miner %}<span class="perm-batch">{{ settings.MEX_MINER }}</span>{% endif %}
                 {% endif %}
             </td></tr>
         </tbody>

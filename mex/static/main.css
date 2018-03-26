@@ -8,3 +8,15 @@ table {
     font-weight: normal;
     padding: 0.3rem;
 }
+
+.footer {
+    background-color: #000;
+    color: #fff;
+    padding: 2rem 0;
+    text-align: center;
+    margin-top: auto;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
