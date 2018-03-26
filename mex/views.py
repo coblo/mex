@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import datetime
+import ubjson
+from binascii import unhexlify
 
 from django.views.generic import DetailView, TemplateView
 from django_tables2 import MultiTableMixin, SingleTableView
 
 from mex.rpc import get_client
 from mex.tables import BlockTable, TransactionTable, AddressTable
-from mex.models import Block, Transaction, Address, Stream, Output
+from mex.models import Block, Transaction, Address, Output
 from mex.utils import public_key_to_address
 
 
@@ -165,12 +167,14 @@ class AddressDetailView(DetailView):
         return ctx
 
 class StreamDetailView(TemplateView):
-
     template_name = 'mex/stream_detail.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         api = get_client()
-        streams = api.liststreams()
-        ctx['streams'] = sorted(streams, key=lambda k: -k['items'])
+        ctx['stream_details'] = api.liststreams(ctx['stream'])[0]
+        ctx['stream_items'] = api.liststreamitems(ctx['stream'])
+        for key, item in enumerate(ctx['stream_items']):
+            ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
+            ctx['stream_items'][key]['formatted_data'] = ubjson.loadb(unhexlify(item['data']))
         return ctx
