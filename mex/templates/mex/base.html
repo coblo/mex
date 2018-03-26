@@ -39,24 +39,24 @@
 
             <div class="collapse navbar-collapse" id="navbarsExample02">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'home' %}active{% endif %}">
                         <a class="nav-link" href="/">Home <span
                                 class="sr-only">(current)</span></a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'blocks' or request.resolver_match.view_name == 'block-detail' %}active{% endif %}">
                         <a class="nav-link"
                            href="{% url 'blocks' %}">Blocks</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'transactions' or request.resolver_match.view_name == 'transaction-detail' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'transactions' %}">Transactions</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'addresses' or request.resolver_match.view_name == 'address-detail' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'addresses' %}">Addresses</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'streams' or request.resolver_match.view_name == 'stream-detail' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'streams' %}">Streams</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.resolver_match.view_name == 'status' %}active{% endif %}">
                         <a class="nav-link"
                            href="{% url 'status' %}">Status</a>
                     </li>
