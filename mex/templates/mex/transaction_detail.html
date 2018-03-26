@@ -1,8 +1,126 @@
 {% extends "mex/base.html" %}
 {% block content %}
-    <h4 class="mt-4">
-        Transaction:
-        <small class="text-muted">{{ transaction.hash }}</small>
-    </h4>
+    <h3 class="mt-4">
+        Transaction Details:
+    </h3>
+    <table class="table">
+        <tbody>
+            <tr><th scope="row">Hash</th><td>{{ transaction.hash }}</td></tr>
+            <tr><th>Blockhash</th><td><a href="../block/{{ details.blockhash }}">{{ details.blockhash }}</a></td></tr>
+            <tr><th>Blocktime</th><td>{{ formattedBlocktime }}</td></tr>
+            <tr><th>Confirmations</th><td>{{ details.confirmations }}</td></tr>
+        </tbody>
+    </table>
+    <ul class="nav nav-tabs mt-4">
+      <li class="nav-item">
+        <a class="nav-link active" href="#in-outputs" data-toggle="tab" role="tab" aria-controls="in-outputs" aria-selected="true">
+            Inputs / Outputs
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#raw-data" data-toggle="tab" role="tab" aria-controls="raw-data" aria-selected="false">
+            Raw Transaction
+        </a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active p-2" id="in-outputs" role="tabpanel" aria-labelledby="in-outputs-tab">
+        <h4>Inputs</h4>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Previous Output</th>
+                    <th scope="col">Address</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for vin in formattedVin %}
+                <tr>
+                    <th scope="row">{{ vin.index }}</th>
+                    {% if vin.transaction %}
+                        <td><a href="../tx/{{ vin.transaction }}">{{ vin.transaction }}</a></td>
+                    {% else %}
+                        <td>Generation</td>
+                    {% endif %}
+                    <td>{{ vin.address }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h4>Outputs</h4>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Redeemed in</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for vout in formattedVout %}
+                <tr>
+                    <th scope="row">{{ vout.index }}</th>
+                    {% if vout.transaction %}
+                        <td><a href="../tx/{{ vout.transaction }}">{{ vout.transaction }}</a></td>
+                    {% else %}
+                        <td>Not yet redeemed</td>
+                    {% endif %}
+                    <td>{{ vout.address }}</td>
+                    <td>{{ vout.amount }} {{ mex_symbol }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>
+      <div class="tab-pane fade" id="raw-data" role="tabpanel" aria-labelledby="raw-data-tab">
+          <div class="raw-transaction-view p-2">{<br>
+              <div class="ml-4">"txid": {{ details.txid }},</div>
+              <div class="ml-4">"time": {{ details.time }},</div>
+              <div class="ml-4">"blocktime": {{ details.blocktime }},</div>
+              <div class="ml-4">"blockhash": {{ details.blockhash }},</div>
+              <div class="ml-4">"confirmations": {{ details.confirmations }},</div>
+              <div class="ml-4">"vin ": [<br>
+                  {% for vin in details.vin %}
+                      <div class="ml-4">
+                          {<br>
+                          {% for key, item in vin.items %}
+                              <div class="ml-4">"{{ key }}": {{ item }}</div>
+                          {% endfor %}
+                          }{% if not forloop.last %},{% endif %}
+                      </div>
+                  {% endfor %}
+                  ],</div>
+              <div class="ml-4">"vout ": [<br>
+                  {% for vout in details.vout %}
+                      <div class="ml-4">
+                          {<br>
+                          {% for key in vout %}
+                              {% if key == 'scriptPubKey' %}
+                                  <div class="ml-4">"{{ key }}": {<br>
+                                      {% for scriptkey in vout|get_item:key %}
+                                          <div class="ml-4">"{{ scriptkey }}": {{ vout|get_item:key|get_item:scriptkey }}</div>
+                                      {% endfor %}
+                                      }{% if not forloop.last %},{% endif %}
+                                  </div>
+                              {% elif key == 'items' %}
+                                  <div class="ml-4">"{{ key }}": [<br>
+                                      {% for item in vout|get_item:key %}
+                                          <div class="ml-4">{{ item }}</div>
+                                      {% endfor %}
+                                  ]{% if not forloop.last %},{% endif %}</div>
+                              {% else %}
+                                  <div class="ml-4">"{{ key }}": {{ vout|get_item:key}}</div>
+                              {% endif %}
+                          {% endfor %}
+                          }{% if not forloop.last %},{% endif %}
+                      </div>
+                  {% endfor %}
+                  ]</div>
+              }
+          </div>
+      </div>
+    </div>
 {% endblock %}
 

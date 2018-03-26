@@ -1,7 +1,37 @@
 {% extends "mex/base.html" %}
 {% block content %}
-    <h4 class="mt-4">
-        Address:
-        <small class="text-muted">{{ address.address }}</small>
-    </h4>
+    <h3 class="mt-4">
+        Address Details:
+    </h3>
+    <table class="table">
+        <tbody>
+            <tr><th scope="row">Address</th><td>{{ address }}</td></tr>
+            <tr><th>Blocks mined</th><td>{{ amount_blocks }}</td></tr>
+            <tr><th>Balance</th><td>{{ balance }} {{ mex_symbol }}</td></tr>
+            <tr><th>Permissions</th><td>
+                {% if not admin and not miner %}
+                    None
+                {% else %}
+                    {% if admin %}<span class="perm-batch">{{ mex_admin }}</span>{% endif %}
+                    {% if miner %}<span class="perm-batch">{{ mex_miner }}</span>{% endif %}
+                {% endif %}
+            </td></tr>
+        </tbody>
+    </table>
+    {% if last_tx %}
+        <h4>Last Transactions:</h4>
+        <table class="table">
+            <thead>
+                <tr><th>Transaction</th><th>Block</th><th>Blocktime</th></tr>
+            </thead>
+            <tbody>
+                {% for tx in last_tx %}
+                    <tr>
+                        <td><a href="../tx/{{ tx.tx }}">{{ tx.tx }}</a></td>
+                        <td><a href="../block/{{ tx.hash }}">{{ tx.height }}</a></td>
+                        <td>{{ tx.time }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}

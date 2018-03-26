@@ -1,0 +1,26 @@
+div.raw-transaction-view {
+    background-color: #eeeeee;
+    word-wrap: break-word;
+    font-size: 0.8rem;
+}
+
+table tr:first-child th, table tr:first-child td {
+    border: none;
+}
+
+.iter-block-link {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+table.table .block-hash-td {
+    padding: 0 .75rem;
+}
+
+.perm-batch {
+    background-color: #17A2B8;
+    padding: 0.2rem 0.5rem;
+    border-radius: .2rem;
+    color: #fff;
+    margin-right: .5rem;
+}

@@ -1,0 +1,10 @@
+table {
+    font-size: 0.8rem;
+    font-family: 'Fira Mono', monospace;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: normal;
+    padding: 0.3rem;
+}

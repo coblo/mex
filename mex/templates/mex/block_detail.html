@@ -1,7 +1,77 @@
 {% extends "mex/base.html" %}
 {% block content %}
-    <h4 class="mt-4">
-        Block:
-        <small class="text-muted">{{ object.hash }}</small>
-    </h4>
+    <h3 class="mt-4">
+        Block Details:
+    </h3>
+    <table class="table">
+        <tbody>
+            <tr><th scope="row">Hash</th><td class="block-hash-td">
+                {% if 'previousblockhash' in details %}
+                    <a class="iter-block-link" href="../block/{{ details.previousblockhash }}"><</a>
+                {% endif %}
+                {{ details.hash }}
+                {% if 'nextblockhash' in details %}
+                    <a class="iter-block-link" href="../block/{{ details.nextblockhash }}">></a>
+                {% endif %}
+            </td></tr>
+            <tr><th>Height</th><td>{{ details.height }}</td></tr>
+            <tr><th>Blocktime</th><td>{{ formattedtime }}</td></tr>
+            <tr><th>Transactions</th><td>{{ num_transactions }}</td></tr>
+            <tr><th>Miner</th><td><a href="../addr/{{ details.miner }}">{{ details.miner }}</a></td></tr>
+            <tr><th>Confirmations</th><td>{{ details.confirmations }}</td></tr>
+        </tbody>
+    </table>
+    <ul class="nav nav-tabs mt-4">
+      <li class="nav-item">
+        <a class="nav-link active" href="#transactions" data-toggle="tab" role="tab" aria-controls="transactions" aria-selected="true">
+            Transactions
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#raw-data" data-toggle="tab" role="tab" aria-controls="raw-data" aria-selected="false">
+            Raw Block
+        </a>
+      </li>
+    </ul><div class="tab-content">
+      <div class="tab-pane fade show active p-2" id="transactions" role="tabpanel" aria-labelledby="transactions-tab">
+        <table class="table">
+            <tbody>
+            {% for transaction in details.tx %}
+                <tr>
+                    <th>{{ forloop.counter0 }}</th>
+                    <td><a href="../tx/{{ transaction }}">{{ transaction }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+      </div>
+      <div class="tab-pane fade" id="raw-data" role="tabpanel" aria-labelledby="raw-data-tab">
+          <div class="raw-transaction-view p-2">{<br>
+              <div class="ml-4">"hash": {{ details.hash }},</div>
+              <div class="ml-4">"height": {{ details.height }},</div>
+              <div class="ml-4">"confirmations": {{ details.confirmations }},</div>
+              <div class="ml-4">"time": {{ details.time }},</div>
+              <div class="ml-4">"tx": [<br>
+                  {% for tx in details.tx %}
+                      <div class="ml-4">{{ tx }},</div>
+                  {% endfor %}
+              ],</div>
+              <div class="ml-4">"miner": {{ details.miner }},</div>
+              <div class="ml-4">"difficulty": {{ details.difficulty }},</div>
+              {% if 'previousblockhash' in details %}
+                  <div class="ml-4">"previousblockhash": {{ details.previousblockhash }},</div>
+              {% endif %}
+              {% if 'nextblockhash' in details %}
+                  <div class="ml-4">"nextblockhash": {{ details.nextblockhash }},</div>
+              {% endif %}
+              <div class="ml-4">"size": {{ details.size }},</div>
+              <div class="ml-4">"merkleroot": {{ details.merkleroot }},</div>
+              <div class="ml-4">"chainwork": {{ details.chainwork }},</div>
+              <div class="ml-4">"nonce": {{ details.nonce }},</div>
+              <div class="ml-4">"version": {{ details.version }},</div>
+              <div class="ml-4">"bits": {{ details.bits }}</div>
+
+          }</div>
+      </div>
+    </div>
 {% endblock %}

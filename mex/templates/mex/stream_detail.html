@@ -1,0 +1,37 @@
+{% extends "mex/base.html" %}
+{% block content %}
+    <h3 class="mt-4">
+        Stream Details:
+    </h3>
+    <table class="table">
+        <tbody>
+            <tr><th scope="row">Stream</th><td>{{ stream_details.name }}</td></tr>
+            <tr><th>Open</th><td>{{ stream_details.open }}</td></tr>
+            <tr><th>Items</th><td>{{ stream_details.items }}</td></tr>
+            <tr><th>Streamref</th><td>{{ stream_details.streamref }}</td></tr>
+        </tbody>
+    </table>
+    <h4>Stream Items</h4>
+    <table class="table table-sm table-striped table-hover">
+    <thead>
+        <tr><th>Keys</th><th>Data</th><th>Time</th><th>Transaction</th><th>Publishers</th></tr>
+    </thead>
+    <tbody>
+        {% for item in stream_items %}
+            <tr>
+                <td>{% for key in item.keys %}{{ key }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+                <td>{% for key, date in item.formatted_data.items %}
+                    "{{ key }}": {{ date }}{% if not forloop.last %},<br>{% endif %}
+                {% endfor %}</td>
+                <td>{{ item.formatted_time }}</td>
+                <td><a href="../tx/{{ item.txid }}">{{ item.txid|truncatechars:13 }}</a></td>
+                <td>{% for publisher in item.publishers %}
+                    <a href="../addr/{{ publisher }}">
+                        {{ publisher|truncatechars:13 }}
+                    </a>{% if not forloop.last %}<br>{% endif %}
+                {% endfor %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

@@ -147,3 +147,9 @@ except Exception:
     print('No custom configuration found. Create a mex/settings/config.py')
     import sys
     sys.exit(0)
+
+from django.template.defaulttags import register
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
