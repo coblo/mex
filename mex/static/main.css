@@ -1,3 +1,13 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
 table {
     font-size: 0.8rem;
     font-family: 'Fira Mono', monospace;
@@ -14,11 +24,11 @@ table {
     color: #fff;
     padding: 2rem 0;
     text-align: center;
-    margin-top: auto;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    margin-top: 5rem;
+    /*position: absolute;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
+    /*left: 0;*/
 }
 
 div.raw-transaction-view {
