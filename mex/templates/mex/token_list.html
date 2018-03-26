@@ -1,0 +1,35 @@
+{% extends "mex/base.html" %}
+{% block content %}
+    <div class="row mt-4">
+        <div class="col">
+            <h1 class="text-secondary">Tokens</h1>
+            <table class="table table-sm table-striped table-hover">
+            <thead>
+                <tr><th>Name</th><th>Assetref</th><th>Restrictions</th><th>Details</th><th>Raw</th><th>Transaction</th></tr>
+            </thead>
+            <tbody>
+                {% for token in tokens %}
+                    <tr>
+                        <td>{% if 'name' in token %}{{ token.name }}{% endif %}</td>
+                        <td>
+                            {% if token.assetref != None %}
+                                <a href="../token/{{ token.assetref }}">{{ token.assetref }}</a>
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td>
+                        <td>{% for restriction, value in token.restrict.items %}
+                            "{{ restriction }}": {{ value }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}</td>
+                        <td>{% for key, value in token.details.items %}
+                            "{{ key }}": {{ value }}{% if  not forloop.last %}<br>{% endif %}
+                        {% endfor %}</td>
+                        <td>{{ token.issueraw }}</td>
+                        <td><a href="../tx/{{ token.issuetxid }}">{{ token.issuetxid|truncatechars:13 }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

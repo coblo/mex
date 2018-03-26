@@ -1,0 +1,45 @@
+{% extends "mex/base.html" %}
+{% block content %}
+    <h3 class="mt-4">
+        Token Details:
+    </h3>
+    <table class="table">
+        <tbody>
+            <tr><th scope="row">Assetref</th><td>{{ token_details.assetref }}</td></tr>
+            {% if 'name' in token_details %}
+                <tr><th>Name</th><td>{{ token_details.name }}</td></tr>
+            {% endif %}
+            <tr><th>Restrictions</th><td>{% for restriction, value in token_details.restrict.items %}
+                <span class="{% if value %}true{% else %}false{% endif %}-batch">"{{ restriction }}": {{ value }}</span>
+            {% endfor %}</td></tr>
+            {% if token_details.details %}
+                <tr><th>Details</th><td>{% for detail, value in token_details.details.items %}
+                    "{{ detail }}": {{ value }}{% if not forloop.last %}<br>{% endif %}
+                {% endfor %}</td></tr>
+            {% endif %}
+            <tr><th>Raw</th><td>{{ token_details.issueraw }}</td></tr>
+            <tr><th>Transaction</th>
+                <td><a href="../tx/{{ token_details.issuetxid }}">{{ token_details.issuetxid }}</a></td></tr>
+        </tbody>
+    </table>
+    <h4>Raw Token</h4>
+    <div class="raw-transaction-view token-raw p-2">
+    {<br>
+    {% for key, item in token_details.items %}
+        <div class="ml-4">"{{ key }}":
+            {% if key == 'details' and token_details.details %}{<br>
+                {% for detailkey, detailitem in token_details.details.items %}
+                    <div class="ml-4">"{{ detailkey }}": {{ detailitem }}{% if not forloop.last %},{% endif %}</div>
+                {% endfor %}}{% if not forloop.last %},{% endif %}
+            {% elif key == 'restrict' and token_details.restrict %}{<br>
+                {% for restrictkey, restrictitem in token_details.restrict.items %}
+                    <div class="ml-4">"{{ restrictkey }}": {{ restrictitem }}{% if not forloop.last %},{% endif %}</div>
+                {% endfor %}}{% if not forloop.last %},{% endif %}
+            {% else %}
+                {{ item }}{% if not forloop.last %},{% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+    }
+    </div>
+{% endblock %}

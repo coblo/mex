@@ -9,7 +9,6 @@
     <title>{{ settings.EXPLORER_NAME }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'main.css' %}">
-    <link rel="stylesheet" href="{% static 'transaction_details.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Fira+Mono"
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Oswald"
@@ -55,6 +54,9 @@
                     </li>
                     <li class="nav-item {% if request.resolver_match.view_name == 'streams' or request.resolver_match.view_name == 'stream-detail' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'streams' %}">Streams</a>
+                    </li>
+                    <li class="nav-item {% if request.resolver_match.view_name == 'tokens' or request.resolver_match.view_name == 'token-detail' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'tokens' %}">Tokens</a>
                     </li>
                     <li class="nav-item {% if request.resolver_match.view_name == 'status' %}active{% endif %}">
                         <a class="nav-link"
