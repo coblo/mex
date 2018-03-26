@@ -176,5 +176,9 @@ class StreamDetailView(TemplateView):
         ctx['stream_items'] = api.liststreamitems(ctx['stream'])
         for key, item in enumerate(ctx['stream_items']):
             ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
-            ctx['stream_items'][key]['formatted_data'] = ubjson.loadb(unhexlify(item['data']))
+            if item['data']:
+                try:
+                    ctx['stream_items'][key]['formatted_data'] = ubjson.loadb(unhexlify(item['data']))
+                except Exception as e:
+                    ctx['stream_items'][key]['formatted_data'] = item['data']
         return ctx
