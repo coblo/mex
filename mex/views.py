@@ -183,7 +183,7 @@ class StreamDetailView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         api = get_client()
         ctx['stream_details'] = api.liststreams(ctx['stream'])[0]
-        ctx['stream_items'] = api.liststreamitems(ctx['stream'])
+        ctx['stream_items'] = list(reversed(api.liststreamitems(ctx['stream'])))
         for key, item in enumerate(ctx['stream_items']):
             ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
             if item['data']:
@@ -201,11 +201,4 @@ class TokenDetailView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         api = get_client()
         ctx['token_details'] = api.listassets(ctx['token'])[0]
-        # for key, item in enumerate(ctx['stream_items']):
-        #     ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
-        #     if item['data']:
-        #         try:
-        #             ctx['stream_items'][key]['formatted_data'] = ubjson.loadb(unhexlify(item['data']))
-        #         except Exception as e:
-        #             ctx['stream_items'][key]['formatted_data'] = item['data']
         return ctx
