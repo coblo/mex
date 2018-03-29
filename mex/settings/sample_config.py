@@ -19,10 +19,10 @@ DATABASES = {
 MEX_BRAND = 'MEX Explorer'
 MEX_ADMIN = 'Admin'
 MEX_MINER = 'Miner'
+MEX_ASSET = 'Token'
 MEX_SYMBOL = 'CBL'
 MEX_CURRENCY = 'CoBlo'
-
-FOOTER_TEXT = "Footer Text"
+MEX_FOOTER = "Footer Text"
 
 NODE_IP = '127.0.0.1'
 NODE_PORT = '8374'
