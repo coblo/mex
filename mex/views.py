@@ -113,6 +113,7 @@ class TransactionDetailView(TemplateView):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
         ctx['details'] = api.getrawtransaction(ctx['hash'], 4)
+        ctx['raw'] = 'raw' in self.request.GET
         blockchain_params = api.getblockchainparams()
         pubkeyhash_version = blockchain_params['address-pubkeyhash-version']
         checksum_value = blockchain_params['address-checksum-value']
