@@ -106,19 +106,18 @@ class BlockDetailView(DetailView):
         return ctx
 
 
-class TransactionDetailView(DetailView):
-    model = Transaction
-    slug_field = 'hash'
-    slug_url_kwarg = 'hash'
+class TransactionDetailView(TemplateView):
+    template_name = 'mex/transaction_detail.html'
 
     def get_context_data(self, **kwargs):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
-        ctx['details'] = api.getrawtransaction(ctx['transaction'].hash, 4)
+        ctx['details'] = api.getrawtransaction(ctx['hash'], 4)
         blockchain_params = api.getblockchainparams()
         pubkeyhash_version = blockchain_params['address-pubkeyhash-version']
         checksum_value = blockchain_params['address-checksum-value']
-        ctx['formattedBlocktime'] = datetime.datetime.fromtimestamp(ctx['details']['blocktime'])
+        if 'blocktime' in ctx['details']:
+            ctx['formattedBlocktime'] = datetime.datetime.fromtimestamp(ctx['details']['blocktime'])
         ctx['formattedVin'] = []
         ctx['formattedVout'] = []
         for index, vin in enumerate(ctx['details']['vin']):

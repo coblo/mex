@@ -5,10 +5,24 @@
     </h3>
     <table class="table">
         <tbody>
-            <tr><th scope="row">Hash</th><td>{{ transaction.hash }}</td></tr>
-            <tr><th>Blockhash</th><td><a href="../block/{{ details.blockhash }}">{{ details.blockhash }}</a></td></tr>
-            <tr><th>Blocktime</th><td>{{ formattedBlocktime }}</td></tr>
-            <tr><th>Confirmations</th><td>{{ details.confirmations }}</td></tr>
+            <tr><th scope="row">Hash</th><td>{{ details.txid }}</td></tr>
+            <tr><th>Blockhash</th>
+                {% if details.blockhash %}
+                    <td><a href="../block/{{ details.blockhash }}">{{ details.blockhash }}</a></td>
+                {% else %}
+                    <td>Unconfirmed</td>
+                {% endif %}
+            </tr>
+            <tr><th>Blocktime</th>
+            {% if formattedBlocktime %}
+                <td>{{ formattedBlocktime }}</td>
+            {% else %}
+                <td>Unconfirmed</td>
+            {% endif %}
+            </tr>
+            <tr><th>Confirmations</th><td>
+                {% if details.confirmations %}{{ details.confirmations }}{% else %}0{% endif %}
+            </td></tr>
         </tbody>
     </table>
     <ul class="nav nav-tabs mt-4">
