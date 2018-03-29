@@ -9,11 +9,13 @@
             </thead>
             <tbody>
                 {% for stream in streams %}
-                    <tr>
-                        <td><a href="../stream/{{ stream.name }}">{{ stream.name }}</a></td>
-                        <td>{{ stream.items }}</td>
-                        <td>{{ stream.open }}</td>
-                    </tr>
+                    {% if stream.name not in settings.MEX_IGNORE_STREAMS %}
+                        <tr>
+                            <td><a href="../stream/{{ stream.name }}">{{ stream.name }}</a></td>
+                            <td>{{ stream.items }}</td>
+                            <td>{{ stream.open }}</td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
             </table>
