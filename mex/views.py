@@ -185,7 +185,8 @@ class StreamDetailView(TemplateView):
         ctx['stream_details'] = api.liststreams(ctx['stream'])[0]
         ctx['stream_items'] = list(reversed(api.liststreamitems(ctx['stream'])))
         for key, item in enumerate(ctx['stream_items']):
-            ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
+            if 'blocktime' in item:
+                ctx['stream_items'][key]['formatted_time'] = datetime.datetime.fromtimestamp(item['blocktime'])
             if item['data']:
                 try:
                     ctx['stream_items'][key]['formatted_data'] = ubjson.loadb(unhexlify(item['data']))

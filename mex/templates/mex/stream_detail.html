@@ -23,7 +23,7 @@
                 <td>{% for key, date in item.formatted_data.items %}
                     "{{ key }}": {{ date }}{% if not forloop.last %},<br>{% endif %}
                 {% endfor %}</td>
-                <td>{{ item.formatted_time }}</td>
+                <td>{% if item.formatted_time %}{{ item.formatted_time }}{% else %}unconfirmed{% endif %}</td>
                 <td><a href="../tx/{{ item.txid }}">{{ item.txid|truncatechars:13 }}</a></td>
                 <td>{% for publisher in item.publishers %}
                     <a href="../addr/{{ publisher }}">
