@@ -141,7 +141,7 @@ MEX_ASSET = 'Token'
 MEX_SYMBOL = 'CBL'
 MEX_CURRENCY = 'CoBlo'
 MEX_FOOTER = "Footer Text"
-MEX_IGNORE_STREAMS = ['root']
+MEX_IGNORE_STREAMS = ['root', 'testiscc', 'another']
 MEX_SYNC_HORIZON = 300
 
 NODE_IP = '127.0.0.1'
