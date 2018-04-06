@@ -108,6 +108,10 @@ class Output(models.Model):
     def natural_key(self):
         return '%s:%s' % (self.transaction.hash, self.out_idx)
 
+    def spent_by_txid(self):
+        if self.spent:
+            return self.inputs_for_output.first().transaction.hash
+
 
 class Input(models.Model):
 

@@ -64,7 +64,7 @@
                     <tr>
                         <th scope="row">{{ vin.index }}</th>
                         {% if vin.transaction %}
-                            <td><a href="../tx/{{ vin.transaction }}">{{ vin.transaction }}</a></td>
+                            <td><a href="../tx/{{ vin.transaction }}">{{ vin.transaction }}:{{ vin.vout }}</a></td>
                         {% else %}
                             <td>Generation</td>
                         {% endif %}

@@ -112,7 +112,13 @@ class TransactionDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
-        ctx['details'] = api.getrawtransaction(ctx['hash'], 4)
+        tx_raw = api.getrawtransaction(ctx['hash'], 4)
+        if tx_raw['confirmations']:
+            tx_db = Transaction.objects.get(hash=tx_raw['txid'])
+            outputs_db = tx_db.outputs_for_tx.order_by('out_idx')
+        else:
+            outputs_db = None
+        ctx['details'] = tx_raw
         ctx['raw'] = 'raw' in self.request.GET
         blockchain_params = api.getblockchainparams()
         pubkeyhash_version = blockchain_params['address-pubkeyhash-version']
@@ -121,6 +127,7 @@ class TransactionDetailView(TemplateView):
             ctx['formattedBlocktime'] = datetime.datetime.fromtimestamp(ctx['details']['blocktime'])
         ctx['formattedVin'] = []
         ctx['formattedVout'] = []
+
         for index, vin in enumerate(ctx['details']['vin']):
             address = 'N/A'
             if 'scriptSig' in vin:
@@ -129,16 +136,25 @@ class TransactionDetailView(TemplateView):
             ctx['formattedVin'].append({
                 'index': index,
                 'address': address,
-                'transaction': vin['txid'] if 'txid' in vin else ''
+                'transaction': vin['txid'] if 'txid' in vin else '',
+                'vout': vin.get('vout', 0)
             })
+
         for index, vout in enumerate(ctx['details']['vout']):
             address = 'N/A'
+
             if 'scriptPubKey' in vout and 'addresses' in vout['scriptPubKey']:
                 address = ', '.join(vout['scriptPubKey']['addresses'])
+
+            if outputs_db and outputs_db[index].spent:
+                redeemed_in = outputs_db[index].spent_by_txid()
+            else:
+                redeemed_in = ''
+
             ctx['formattedVout'].append({
                 'index': index,
                 'address': address,
-                'transaction': vin['txid'] if 'txid' in vin else '',
+                'transaction': redeemed_in,
                 'amount': vout['value']
             })
         return ctx
