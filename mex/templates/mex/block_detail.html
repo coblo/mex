@@ -17,7 +17,7 @@
             <tr><th>Height</th><td>{{ details.height }}</td></tr>
             <tr><th>Blocktime</th><td>{{ formattedtime }}</td></tr>
             <tr><th>Transactions</th><td>{{ num_transactions }}</td></tr>
-            <tr><th>Miner</th><td><a href="../addr/{{ details.miner }}">{{ details.miner }}</a></td></tr>
+            <tr><th>{{ MEX_MINER }}</th><td><a href="../addr/{{ details.miner }}">{{ details.miner }}</a></td></tr>
             <tr><th>Confirmations</th><td>{{ details.confirmations }}</td></tr>
         </tbody>
     </table>

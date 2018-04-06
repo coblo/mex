@@ -10,7 +10,7 @@ class BlockTable(tables.Table):
 
     height = LinkColumn(verbose_name='Height', orderable=True)
     time = DateTimeColumn(verbose_name='Time (UTC)', format="Y-m-d H:i", orderable=True)
-    miner = LinkColumn(verbose_name='Miner')
+    miner = LinkColumn(verbose_name=settings.MEX_MINER)
     txcount = Column(verbose_name='TXs', orderable=True)
     size = Column(orderable=True)
 

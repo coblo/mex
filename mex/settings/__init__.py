@@ -140,7 +140,7 @@ MEX_MINER = 'Validator'
 MEX_ASSET = 'Token'
 MEX_SYMBOL = 'CBL'
 MEX_CURRENCY = 'CoBlo'
-MEX_FOOTER = "Footer Text"
+MEX_FOOTER = "Copyright 2018 <a href='https://content-blockchain.org'>The Content Blockchain Project</a>"
 MEX_IGNORE_STREAMS = ['root', 'testiscc', 'another']
 MEX_SYNC_HORIZON = 300
 

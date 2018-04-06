@@ -3,6 +3,7 @@ import datetime
 import ubjson
 from binascii import unhexlify
 
+from django.conf import settings
 from django.views.generic import DetailView, TemplateView
 from django_tables2 import MultiTableMixin, SingleTableView
 
@@ -100,6 +101,7 @@ class BlockDetailView(DetailView):
     def get_context_data(self, **kwargs):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
+        ctx['MEX_MINER'] = settings.MEX_MINER
         ctx['details'] = api.getblock(ctx['block'].hash, 1)
         ctx['formattedtime'] = datetime.datetime.fromtimestamp(ctx['details']['time'])
         ctx['num_transactions'] = len(ctx['details']['tx'])
