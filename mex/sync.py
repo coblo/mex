@@ -2,6 +2,9 @@
 from datetime import datetime
 import pytz
 from django.conf import settings
+from django.db import InterfaceError, OperationalError
+from django.db import connection
+
 from mex.exceptions import SyncError
 from mex.rpc import get_client
 from mex.models import Block, Transaction, Output, Address, Input
@@ -232,6 +235,14 @@ if __name__ == '__main__':
             stop = timeit.default_timer()
             runtime = stop - start
             log.info('finished sync round in %s seconds' % runtime)
+        except (InterfaceError, OperationalError) as e:
+            log.info(repr(e))
+            log.info('try to gracefully reconnect to db')
+            try:
+                connection.connect()
+                log.info('reconnect to db success')
+            except Exception as e:
+                log.warning('reconnect to db failed')
         except Exception as e:
             log.error(repr(e))
         time.sleep(10)
