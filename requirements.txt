@@ -1,8 +1,8 @@
-Django==2.1.2
+Django==2.1.5
 pytz==2018.3
 psycopg2==2.7.5
 mcrpc==1.0.1
-django-extensions==2.1.3
-django-tables2==2.0.1
+django-extensions==2.1.4
+django-tables2==2.0.4
 Fabric3==1.14.post1
 py-ubjson==0.12.0
