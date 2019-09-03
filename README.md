@@ -1,6 +1,6 @@
-# MEX - MultiChain Explorer
+# MEX - Content Blockchain Explorer
 
-*A lightweight MultiChain Explorer*
+*A lightweight Blockchain Explorer for MultiChain based blockchains*
 
 **NOTE: Work in progress**
 
