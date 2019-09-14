@@ -20,54 +20,54 @@ import timeit
 from mex.rpc import get_client
 
 
-log = logging.getLogger('mex.benchmark')
+log = logging.getLogger("mex.benchmark")
 
 
 def benchmark_rpc():
     api = get_client()
-    node_height = api.getblockcount()['result']
-    log.info(f'Node height: {node_height}')
+    node_height = api.getblockcount()["result"]
+    log.info(f"Node height: {node_height}")
 
-    log.info('Starting benchmark. Please be patient!')
+    log.info("Starting benchmark. Please be patient!")
     start = timeit.default_timer()
-    blocks = api.listblocks('-' + str(node_height), verbose=False)['result']
+    blocks = api.listblocks("-" + str(node_height), verbose=False)["result"]
     stop = timeit.default_timer()
     runtime = stop - start
-    log.info(f'RPC listblocks: {runtime}')
+    log.info(f"RPC listblocks: {runtime}")
 
     start = timeit.default_timer()
-    blocks = api.listblocks('-' + str(node_height), verbose=True)['result']
+    blocks = api.listblocks("-" + str(node_height), verbose=True)["result"]
     stop = timeit.default_timer()
     runtime = stop - start
-    log.info(f'RPC listblocks verbose: {runtime}')
+    log.info(f"RPC listblocks verbose: {runtime}")
 
-    block_hashes = [item['hash'] for item in blocks]
+    block_hashes = [item["hash"] for item in blocks]
     tx_hashes = []
 
     start = timeit.default_timer()
     for block_hash in block_hashes:
-        data = api.getblock(block_hash, verbose=1)['result']['tx']
+        data = api.getblock(block_hash, verbose=1)["result"]["tx"]
         tx_hashes.extend(data)  # pre-collect for getrawtransactions
     stop = timeit.default_timer()
     runtime = stop - start
-    log.info(f'RPC full getblock scan verbose=1: {runtime}')
+    log.info(f"RPC full getblock scan verbose=1: {runtime}")
 
     start = timeit.default_timer()
     for block_hash in block_hashes:
         data = api.getblock(block_hash, verbose=4)
     stop = timeit.default_timer()
     runtime = stop - start
-    log.info(f'RPC full getblock scan verbose=4: {runtime}')
+    log.info(f"RPC full getblock scan verbose=4: {runtime}")
 
     start = timeit.default_timer()
     for tx_hash in tx_hashes:
-        data = api.getrawtransaction(tx_hash, verbose=1)['result']
+        data = api.getrawtransaction(tx_hash, verbose=1)["result"]
     stop = timeit.default_timer()
     runtime = stop - start
-    log.info(f'RPC full getrawtransaction scan verbose=4: {runtime}')
+    log.info(f"RPC full getrawtransaction scan verbose=4: {runtime}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from mex.tools import init_logging, batchwise
 
     init_logging()

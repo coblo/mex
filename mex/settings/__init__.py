@@ -20,77 +20,74 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '8f^y#642-u=fhnq(h45h-!2@1)whx$(c+3-rqu0&i)^5@63o(m'
+SECRET_KEY = "8f^y#642-u=fhnq(h45h-!2@1)whx$(c+3-rqu0&i)^5@63o(m"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ADMINS = [('admin', 'example@example.org')]
+ADMINS = [("admin", "example@example.org")]
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'django_tables2',
-    'django_extensions',
-    'prettyjson',
-
-    'mex.apps.MexConfig',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_tables2",
+    "django_extensions",
+    "prettyjson",
+    "mex.apps.MexConfig",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'mex.urls'
+ROOT_URLCONF = "mex.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'mex.context_processors.site_settings',
-            ],
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "mex.context_processors.site_settings",
+            ]
         },
-    },
+    }
 ]
 
-WSGI_APPLICATION = 'mex.wsgi.application'
+WSGI_APPLICATION = "mex.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mex',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "mex",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 
@@ -100,26 +97,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -131,34 +122,36 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
-DJANGO_TABLES2_TEMPLATE = 'mex/table.html'
+DJANGO_TABLES2_TEMPLATE = "mex/table.html"
 
-MEX_BRAND = 'COBLO Explorer'
-MEX_ADMIN = 'Guardian'
-MEX_MINER = 'Validator'
-MEX_ASSET = 'Token'
-MEX_SYMBOL = 'CBL'
-MEX_CURRENCY = 'CoBlo'
+MEX_BRAND = "COBLO Explorer"
+MEX_ADMIN = "Guardian"
+MEX_MINER = "Validator"
+MEX_ASSET = "Token"
+MEX_SYMBOL = "CBL"
+MEX_CURRENCY = "CoBlo"
 MEX_FOOTER = "Copyright 2018 <a href='https://content-blockchain.org'>The Content Blockchain Project</a>"
-MEX_IGNORE_STREAMS = ['root', 'testiscc', 'another']
+MEX_IGNORE_STREAMS = ["root", "testiscc", "another"]
 MEX_SYNC_HORIZON = 300
 
-NODE_IP = '127.0.0.1'
-NODE_PORT = '8374'
-NODE_USER = 'testuser'
-NODE_PWD = 'testpassword'
+NODE_IP = "127.0.0.1"
+NODE_PORT = "8374"
+NODE_USER = "testuser"
+NODE_PWD = "testpassword"
 
 
 try:
     from mex.settings.config import *
 except Exception:
-    print('No custom configuration found. Create a mex/settings/config.py')
+    print("No custom configuration found. Create a mex/settings/config.py")
     import sys
+
     sys.exit(0)
 
 from django.template.defaulttags import register
+
 
 @register.filter
 def get_item(dictionary, key):

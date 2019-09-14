@@ -13,7 +13,7 @@ en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 class BaseModelAdmin(admin.ModelAdmin):
 
     formfield_overrides = {
-        JSONField: {'widget': PrettyJSONWidget(attrs={'initial': 'parsed'})}
+        JSONField: {"widget": PrettyJSONWidget(attrs={"initial": "parsed"})}
     }
 
     def has_add_permission(self, request):
@@ -22,11 +22,12 @@ class BaseModelAdmin(admin.ModelAdmin):
 
 class TransactionInline(admin.TabularInline):
     """TODO: tidy up with https://stackoverflow.com/a/5556813"""
+
     model = Transaction
     verbose_name = "Transaction"
     verbose_name_plural = "Transactions"
-    fields = ['hash', 'idx']
-    readonly_fields = ('hash', 'idx')
+    fields = ["hash", "idx"]
+    readonly_fields = ("hash", "idx")
     show_change_link = True
 
     class Media:
@@ -41,22 +42,23 @@ class TransactionInline(admin.TabularInline):
 
 @admin.register(Block)
 class BlockAdmin(BaseModelAdmin):
-    list_display = 'height', 'hash', 'miner', 'time', 'txcount', 'size',
-    fields = list_display + ('merkleroot', )
+    list_display = "height", "hash", "miner", "time", "txcount", "size"
+    fields = list_display + ("merkleroot",)
     readonly_fields = fields
-    search_fields = 'miner', 'hash',
+    search_fields = "miner", "hash"
     inlines = [TransactionInline]
 
 
 class InputInline(admin.TabularInline):
     """TODO: tidy up with https://stackoverflow.com/a/5556813"""
+
     model = Input
     verbose_name = "Input"
     verbose_name_plural = "Inputs"
     fieldsets = (
-        ('Hello World', {'fields': ('transaction', 'spends', 'value', 'coinbase',)}),
+        ("Hello World", {"fields": ("transaction", "spends", "value", "coinbase")}),
     )
-    readonly_fields = 'transaction', 'spends', 'value', 'coinbase',
+    readonly_fields = "transaction", "spends", "value", "coinbase"
     show_change_link = True
 
     class Media:
@@ -71,10 +73,11 @@ class InputInline(admin.TabularInline):
 
 class OutputInline(admin.TabularInline):
     """TODO: tidy up with https://stackoverflow.com/a/5556813"""
+
     model = Output
     verbose_name = "Output"
     verbose_name_plural = "Outputs"
-    fields = ['transaction', 'out_idx', 'value', 'address', 'spent']
+    fields = ["transaction", "out_idx", "value", "address", "spent"]
     readonly_fields = fields
     show_change_link = True
 
@@ -90,43 +93,35 @@ class OutputInline(admin.TabularInline):
 
 @admin.register(Transaction)
 class TransactionAdmin(BaseModelAdmin):
-    list_display = (
-       'hash', 'block', 'idx',
-    )
+    list_display = ("hash", "block", "idx")
     readonly_fields = list_display
-    search_fields = ['block__hash', 'hash']
+    search_fields = ["block__hash", "hash"]
     inlines = [InputInline, OutputInline]
 
 
 @admin.register(Output)
 class OutputAdmin(BaseModelAdmin):
-    list_display = (
-       'id', 'transaction', 'out_idx', 'address', 'value', 'spent'
-    )
+    list_display = ("id", "transaction", "out_idx", "address", "value", "spent")
     readonly_fields = list_display
 
-    list_filter = ('spent',)
-    search_fields = ('address__address',)
+    list_filter = ("spent",)
+    search_fields = ("address__address",)
 
 
 @admin.register(Input)
 class InputAdmin(BaseModelAdmin):
-    list_display = (
-       'id', 'transaction', 'spends', 'coinbase',
-    )
+    list_display = ("id", "transaction", "spends", "coinbase")
     readonly_fields = list_display
 
-    list_filter = ('coinbase',)
+    list_filter = ("coinbase",)
 
 
 @admin.register(Address)
 class AddressAdmin(BaseModelAdmin):
-    list_display = (
-      'address', 'balance'
-    )
+    list_display = ("address", "balance")
     readonly_fields = list_display
 
-    search_fields = ('address', )
+    search_fields = ("address",)
 
     def get_queryset(self, request):
         qs = super(AddressAdmin, self).get_queryset(request)
@@ -134,22 +129,23 @@ class AddressAdmin(BaseModelAdmin):
 
     def balance(self, obj):
         return obj.balance
-    balance.admin_order_field = 'balance'
+
+    balance.admin_order_field = "balance"
 
 
 @admin.register(Stream)
 class StreamAdmin(BaseModelAdmin):
     list_display = (
-        'name',
+        "name",
         # 'createtxid',
-        'details',
-        'restrict',
-        'keys',
-        'items',
-        'confirmed',
-        'publishers',
-        'subscribed',
-        'synchronized',
+        "details",
+        "restrict",
+        "keys",
+        "items",
+        "confirmed",
+        "publishers",
+        "subscribed",
+        "synchronized",
     )
 
-    raw_id_fields = ('createtxid', 'creators')
+    raw_id_fields = ("createtxid", "creators")

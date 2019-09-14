@@ -4,7 +4,7 @@ import binascii
 
 
 class HashField(models.BinaryField):
-    description = 'Hex-Hashes saved as raw binary data.'
+    description = "Hex-Hashes saved as raw binary data."
 
     def __init__(self, *args, **kwargs):
         super(HashField, self).__init__(*args, **kwargs)

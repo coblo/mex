@@ -23,7 +23,7 @@ def public_key_to_address(public_key: str, pkhv, cv):
     cv_raw = unhexlify(cv)
 
     # Hash public key
-    ripemd160 = new('ripemd160')
+    ripemd160 = new("ripemd160")
     ripemd160.update(sha256(pubkey_raw).digest())
     pubkey_raw_hashed = ripemd160.digest()
 
@@ -48,6 +48,7 @@ def public_key_to_address(public_key: str, pkhv, cv):
 
 def sha256d(data):
     return sha256(sha256(data).digest()).digest()
+
 
 def xor_bytes(a, b):
     result = bytearray()
