@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from mex.models import Block, Transaction, Output, Address, Input
+from django.contrib.postgres.fields import JSONField
+from prettyjson import PrettyJSONWidget
+
+from mex.models import Block, Transaction, Output, Address, Input, Stream
 from django.conf.locale.en import formats as en_formats
 
 
@@ -8,6 +11,10 @@ en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 
 class BaseModelAdmin(admin.ModelAdmin):
+
+    formfield_overrides = {
+        JSONField: {'widget': PrettyJSONWidget(attrs={'initial': 'parsed'})}
+    }
 
     def has_add_permission(self, request):
         return False
@@ -128,3 +135,21 @@ class AddressAdmin(BaseModelAdmin):
     def balance(self, obj):
         return obj.balance
     balance.admin_order_field = 'balance'
+
+
+@admin.register(Stream)
+class StreamAdmin(BaseModelAdmin):
+    list_display = (
+        'name',
+        # 'createtxid',
+        'details',
+        'restrict',
+        'keys',
+        'items',
+        'confirmed',
+        'publishers',
+        'subscribed',
+        'synchronized',
+    )
+
+    raw_id_fields = ('createtxid', 'creators')

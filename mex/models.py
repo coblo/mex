@@ -2,6 +2,7 @@
 from django.db import models
 from django.db.models import SET_NULL, CASCADE
 from django.urls import reverse
+from django.contrib.postgres import fields as pg_models
 
 from mex import fields
 from mex.querysets import AddressQuerySet
@@ -74,7 +75,19 @@ class Address(models.Model):
 
 class Stream(models.Model):
 
+    confirmed = models.IntegerField()
+    createtxid = models.ForeignKey(
+        'mex.Transaction', to_field='hash', on_delete=SET_NULL, null=True)
+    creators = models.ManyToManyField('mex.Address')
+    details = pg_models.JSONField()
+    items = models.IntegerField()
+    keys = models.IntegerField()
     name = models.CharField(max_length=52, primary_key=True)
+    publishers = models.IntegerField()
+    restrict = pg_models.JSONField()
+    streamref = models.CharField(max_length=255)
+    subscribed = models.BooleanField()
+    synchronized = models.BooleanField()
 
     def __str__(self):
         return self.name

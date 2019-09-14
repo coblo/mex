@@ -7,7 +7,7 @@ from django.db import connection
 
 from mex.exceptions import SyncError
 from mex.rpc import get_client
-from mex.models import Block, Transaction, Output, Address, Input
+from mex.models import Block, Transaction, Output, Address, Input, Stream
 import logging
 
 from mex.tools import batchwise
@@ -218,6 +218,26 @@ def sync_transactions():
     log.info('imported %s addresses' % addr_counter)
 
 
+def sync_streams():
+    api = get_client()
+    streams = api.liststreams('*', verbose=True)
+    for stream in streams:
+
+        # Key for updateing
+        name = stream.pop('name')
+
+        # Set fk by id
+        stream['createtxid_id'] = stream.pop('createtxid')
+        creators = stream.pop('creators')
+        stream_obj, created = Stream.objects.update_or_create(
+            name=name, defaults=stream
+        )
+
+        creator_objs = Address.objects.filter(address__in=creators)
+        if creator_objs.exists():
+            stream_obj.creators.add(*creator_objs)
+
+
 if __name__ == '__main__':
     import time
     import timeit
@@ -232,6 +252,7 @@ if __name__ == '__main__':
             clean_reorgs()
             sync_blocks()
             sync_transactions()
+            sync_streams()
             stop = timeit.default_timer()
             runtime = stop - start
             log.info('finished sync round in %s seconds' % runtime)
