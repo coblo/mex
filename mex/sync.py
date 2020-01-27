@@ -7,7 +7,7 @@ from django.db import connection
 
 from mex.exceptions import SyncError
 from mex.rpc import get_client
-from mex.models import Block, Transaction, Output, Address, Input, Stream
+from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
 import logging
 
 from mex.tools import batchwise
@@ -79,6 +79,7 @@ def sync_blocks(batch_size=1000):
 
     from_to = range(db_height + 1, node_height)
     for batch in batchwise(from_to, batch_size=batch_size):
+        log.info("sync blocks batch %s" % batch)
         block_objs = []
         for block_data in api.listblocks(batch, True):
 
@@ -198,6 +199,9 @@ def sync_transactions():
                     in_objs.append(Input(transaction=tx_obj, coinbase=True))
                     in_counter += 1
         Input.objects.bulk_create(in_objs)
+        log.info(
+            "imported %s transactions from block %s" % (len(tx_objs), block_obj.height)
+        )
 
     log.info("imported %s transactions" % tx_counter)
     log.info("imported %s outputs" % out_counter)
@@ -210,7 +214,7 @@ def sync_streams():
     streams = api.liststreams("*", verbose=True)
     for stream in streams:
 
-        # Key for updateing
+        # Key for update
         name = stream.pop("name")
 
         # Set fk by id
@@ -223,6 +227,66 @@ def sync_streams():
         creator_objs = Address.objects.filter(address__in=creators)
         if creator_objs.exists():
             stream_obj.creators.add(*creator_objs)
+    log.info("imported %s streams" % len(streams))
+
+
+def sync_stream_items():
+    """Synchronize stream data for all monitored streams."""
+
+    api = get_client()
+    streams = Stream.objects.filter(monitor=True)
+    for stream_obj in streams:
+        log.info("import items for stream %s" % stream_obj.name)
+        height = StreamItem.objects.filter(stream=stream_obj).count()
+        total_new_items = 0
+        while True:
+            raw_items = api.liststreamitems(
+                stream_obj.name, verbose=True, count=100, start=height
+            )
+
+            if not raw_items:
+                break
+            new_stream_items = {}
+
+            # collect referenced outputs
+            txids_raw = [r['txid'] for r in raw_items]
+            outputs = Output.objects.filter(transaction_id__in=txids_raw).only(
+                'id', 'transaction_id', 'out_idx'
+            )
+            # Map txid/out_idx composite to primary key of Output
+            outputs = {f'{o.transaction_id}{o.out_idx}': o.pk for o in outputs}
+            for raw_item in raw_items:
+                if raw_item["confirmations"] == 0:
+                    continue
+
+                # Transform raw data
+                txid = raw_item.pop("txid")
+                vout = raw_item.pop("vout")
+
+                raw_item["output_id"] = outputs[f'{txid}{vout}']
+                raw_item["stream_id"] = stream_obj.pk
+                raw_item["time"] = datetime.fromtimestamp(raw_item["time"], tz=pytz.utc)
+                del raw_item["blockhash"]
+                del raw_item["blockindex"]
+                del raw_item["blocktime"]
+                del raw_item["confirmations"]
+                del raw_item["timereceived"]
+
+                publishers = raw_item.pop("publishers")
+
+                s_item_obj = StreamItem(**raw_item)
+                new_stream_items[s_item_obj] = publishers
+
+            StreamItem.objects.bulk_create(new_stream_items.keys())
+            for item_obj, publishers in new_stream_items.items():
+                item_obj.publishers.add(*publishers)
+            total_new_items += len(new_stream_items.keys())
+            height += 100
+        if total_new_items:
+            log.info(
+                "imported %s items from stream %s"
+                % (total_new_items, stream_obj.name)
+            )
 
 
 if __name__ == "__main__":
@@ -240,6 +304,7 @@ if __name__ == "__main__":
             sync_blocks()
             sync_transactions()
             sync_streams()
+            sync_stream_items()
             stop = timeit.default_timer()
             runtime = stop - start
             log.info("finished sync round in %s seconds" % runtime)
