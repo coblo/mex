@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from prettyjson import PrettyJSONWidget
 
-from mex.models import Block, Transaction, Output, Address, Input, Stream
+from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
 from django.conf.locale.en import formats as en_formats
 
 
@@ -12,9 +12,20 @@ en_formats.DATETIME_FORMAT = "Y-m-d H:i"
 
 class BaseModelAdmin(admin.ModelAdmin):
 
+    actions = None
+
     formfield_overrides = {
         JSONField: {"widget": PrettyJSONWidget(attrs={"initial": "parsed"})}
     }
+
+    def has_view_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
     def has_add_permission(self, request):
         return False
@@ -146,6 +157,19 @@ class StreamAdmin(BaseModelAdmin):
         "publishers",
         "subscribed",
         "synchronized",
+        "monitor",
     )
 
+    list_editable = ("monitor",)
+
     raw_id_fields = ("createtxid", "creators")
+
+
+@admin.register(StreamItem)
+class StreamItemAdmin(BaseModelAdmin):
+    list_display = ("time", "stream", "keys", "offchain", "available", "valid")
+
+    search_fields = ("keys", "data")
+    list_filter = ("stream",)
+
+    raw_id_fields = ("output", "publishers",)
