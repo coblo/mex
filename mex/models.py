@@ -3,16 +3,15 @@ from django.db import models
 from django.db.models import SET_NULL, CASCADE
 from django.urls import reverse
 from django.contrib.postgres import fields as pg_models
-
-from mex import fields
+from mex.fields import SHA256Field
 from mex.querysets import AddressQuerySet
 
 
 class Block(models.Model):
 
     height = models.PositiveIntegerField(primary_key=True)
-    hash = fields.HashField(max_length=32, unique=True)
-    merkleroot = fields.HashField(max_length=32)
+    hash = SHA256Field(unique=True)
+    merkleroot = SHA256Field()
     miner = models.ForeignKey("mex.Address", on_delete=SET_NULL, null=True)
     time = models.DateTimeField()
     txcount = models.PositiveSmallIntegerField()
@@ -40,7 +39,7 @@ class Block(models.Model):
 
 class Transaction(models.Model):
 
-    hash = fields.HashField(max_length=32, unique=True)
+    hash = SHA256Field(primary_key=True)
     block = models.ForeignKey(
         Block, on_delete=CASCADE, null=True, related_name="transactions"
     )
@@ -77,19 +76,21 @@ class Address(models.Model):
 class Stream(models.Model):
 
     confirmed = models.IntegerField()
-    createtxid = models.ForeignKey(
-        "mex.Transaction", to_field="hash", on_delete=SET_NULL, null=True
-    )
+    createtxid = models.ForeignKey("mex.Transaction", on_delete=CASCADE, null=True)
     creators = models.ManyToManyField("mex.Address")
     details = pg_models.JSONField()
+    indexes = pg_models.JSONField()
     items = models.IntegerField()
     keys = models.IntegerField()
     name = models.CharField(max_length=52, primary_key=True)
     publishers = models.IntegerField()
     restrict = pg_models.JSONField()
+    retrieve = models.NullBooleanField()
+    salted = models.NullBooleanField()
     streamref = models.CharField(max_length=255)
     subscribed = models.BooleanField()
     synchronized = models.BooleanField()
+    monitor = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -99,6 +100,37 @@ class Stream(models.Model):
 
     def get_absolute_url(self):
         return reverse("stream-detail", args=[str(self.name)])
+
+    @property
+    def description(self):
+        return self.details.get("info")
+
+
+class StreamItem(models.Model):
+
+    output = models.OneToOneField(
+        "mex.Output",
+        on_delete=CASCADE,
+        help_text="The transaction output that created this stream item.",
+        primary_key=True,
+    )
+    stream = models.ForeignKey("mex.Stream", on_delete=CASCADE)
+    available = models.BooleanField()
+    data = pg_models.JSONField()
+    keys = pg_models.ArrayField(models.CharField(max_length=256))
+    offchain = models.BooleanField()
+    publishers = models.ManyToManyField("mex.Address")
+    time = models.DateTimeField()
+    valid = models.BooleanField()
+
+    def __str__(self):
+        return "/".join(self.keys)
+
+    def natural_key(self):
+        return self.output.natural_key()
+
+    def get_absolute_url(self):
+        return reverse("stream-item-detail", args=[self.natural_key()])
 
 
 class Output(models.Model):
