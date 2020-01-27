@@ -4,12 +4,14 @@ import ubjson
 from binascii import unhexlify
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, TemplateView
 from django_tables2 import MultiTableMixin, SingleTableView
 
 from mex.rpc import get_client
-from mex.tables import BlockTable, TransactionTable, AddressTable
-from mex.models import Block, Transaction, Address, Output
+from mex.tables import BlockTable, TransactionTable, AddressTable, StreamTable, \
+    StreamItemTable
+from mex.models import Block, Transaction, Address, Output, Stream, StreamItem
 from mex.utils import public_key_to_address
 
 
@@ -69,15 +71,41 @@ class AddressListView(SingleTableView):
         return qs.with_balance()
 
 
-class StreamListView(TemplateView):
-    template_name = "mex/stream_list.html"
+# class StreamListView(TemplateView):
+#     template_name = "mex/stream_list.html"
+#
+#     def get_context_data(self, **kwargs):
+#         ctx = super().get_context_data(**kwargs)
+#         api = get_client()
+#         streams = api.liststreams()
+#         ctx["streams"] = sorted(streams, key=lambda k: -k["items"])
+#         return ctx
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        api = get_client()
-        streams = api.liststreams()
-        ctx["streams"] = sorted(streams, key=lambda k: -k["items"])
-        return ctx
+
+class StreamTableView(SingleTableView):
+    model = Stream
+    template_name = "mex/stream_list2.html"
+    table_class = StreamTable
+    queryset = Stream.objects.all()
+    paginate_by = 17
+
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data(**kwargs)
+    #     api = get_client()
+    #     streams = api.liststreams()
+    #     ctx["streams"] = sorted(streams, key=lambda k: -k["items"])
+    #     return ctx
+
+
+class StreamItemTableView(SingleTableView):
+    model = StreamItem
+    template_name = "mex/stream_item_list.html"
+    table_class = StreamItemTable
+    paginate_by = 17
+
+    def get_queryset(self):
+        stream = get_object_or_404(Stream, name=self.kwargs['stream'])
+        return StreamItem.objects.filter(stream=stream)
 
 
 class TokenListView(TemplateView):
@@ -234,6 +262,10 @@ class StreamDetailView(TemplateView):
                 except Exception as e:
                     ctx["stream_items"][key]["formatted_data"] = item["data"]
         return ctx
+
+
+
+
 
 
 class TokenDetailView(TemplateView):
