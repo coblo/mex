@@ -2,8 +2,8 @@
 from django.conf import settings
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django_tables2 import tables, Column, DateTimeColumn, LinkColumn
-from mex.models import Block, Transaction, Address
+from django_tables2 import tables, Column, DateTimeColumn, LinkColumn, ManyToManyColumn
+from mex.models import Block, Transaction, Address, Stream, StreamItem
 
 
 class BlockTable(tables.Table):
@@ -71,3 +71,45 @@ class AddressTable(tables.Table):
 
     def render_balance(self, value):
         return "%s %s" % (value, settings.MEX_SYMBOL)
+
+
+class StreamTable(tables.Table):
+
+    name = LinkColumn(verbose_name="Stream")
+    description = Column(verbose_name="Description", orderable=False)
+
+    class Meta:
+        model = Stream
+        fields = ("name", "description", "creators", "items", "keys", "monitor")
+        attrs = {"class": "table table-sm table-striped table-hover"}
+
+
+class StreamItemTable(tables.Table):
+
+    time = DateTimeColumn(
+        verbose_name="Time (UTC)", format="Y-m-d H:i:s", orderable=True
+    )
+
+    publishers = ManyToManyColumn()
+
+    class Meta:
+        model = StreamItem
+        fields = ("time", "keys", "data")
+        attrs = {"class": "table table-sm table-striped table-hover"}
+
+    def render_keys(self, value):
+        if isinstance(value, list):
+            value = '-'.join(value)
+        return value
+
+    def render_data(self, value):
+        title = value.get('json', {}).get('title')
+        if title:
+            value = title[:50]
+        return value
+
+
+    # def render_publishers(self, value):
+    #     if isinstance(value, list):
+    #         value = ','.join(value)
+    #     return value
