@@ -1,0 +1,10 @@
+{% extends "mex/base.html" %}
+{% load render_table from django_tables2 %}
+{% block content %}
+    <div class="row mt-4">
+        <div class="col">
+            <h1 >Stream: {{ view.kwargs.stream|upper }}</h1>
+            {% render_table table %}
+        </div>
+    </div>
+{% endblock %}
