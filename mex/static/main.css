@@ -9,13 +9,14 @@ main {
 }
 
 table {
-    font-size: 0.8rem;
-    font-family: 'Fira Mono', monospace;
+    font-size: 0.9rem;
+    font-family: 'Ubuntu Mono', monospace;
 }
 
 .badge {
-    font-size: 0.7rem;
-    font-weight: normal;
+    font-size: 0.8rem !important;
+    font-family: 'Ubuntu Mono', monospace !important;
+    font-weight: 100 !important;
     padding: 0.3rem;
 }
 
