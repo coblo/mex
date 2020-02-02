@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django_tables2 import tables, Column, DateTimeColumn, LinkColumn, ManyToManyColumn
+from django_tables2 import tables, Column, DateTimeColumn, LinkColumn
 from mex.models import Block, Transaction, Address, Stream, StreamItem
 
 
@@ -80,7 +80,7 @@ class StreamTable(tables.Table):
 
     class Meta:
         model = Stream
-        fields = ("name", "description", "creators", "items", "keys", "monitor")
+        fields = ("name", "description", "creators", "items", "keys")
         attrs = {"class": "table table-sm table-striped table-hover"}
 
 
@@ -89,27 +89,29 @@ class StreamItemTable(tables.Table):
     time = DateTimeColumn(
         verbose_name="Time (UTC)", format="Y-m-d H:i:s", orderable=True
     )
-
-    publishers = ManyToManyColumn()
+    keys = Column(verbose_name="Keys", orderable=False)
+    data = Column(verbose_name="Data", orderable=False)
 
     class Meta:
         model = StreamItem
         fields = ("time", "keys", "data")
         attrs = {"class": "table table-sm table-striped table-hover"}
+        order_by = '-time'
 
     def render_keys(self, value):
         if isinstance(value, list):
             value = '-'.join(value)
-        return value
+        return value[:55]
 
     def render_data(self, value):
-        title = value.get('json', {}).get('title')
-        if title:
-            value = title[:50]
-        return value
+        if isinstance(value, str):
+            return value[:64]
+        data = value.get('json')
+        if data:
+            title = data.get('title') or data.get('ISCC') or data.get('ISBN') or data.get('comment')
+        else:
+            title = value.get('text')
+        if not title:
+            title = str(value)
+        return title[:64] if title else ''
 
-
-    # def render_publishers(self, value):
-    #     if isinstance(value, list):
-    #         value = ','.join(value)
-    #     return value

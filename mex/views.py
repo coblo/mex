@@ -2,12 +2,12 @@
 import datetime
 import ubjson
 from binascii import unhexlify
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, TemplateView
-from django_tables2 import MultiTableMixin, SingleTableView
-
+from django_filters.views import FilterView
+from django_tables2 import MultiTableMixin, SingleTableView, SingleTableMixin
+from mex.filters import StreamItemFilter
 from mex.rpc import get_client
 from mex.tables import BlockTable, TransactionTable, AddressTable, StreamTable, \
     StreamItemTable
@@ -71,41 +71,27 @@ class AddressListView(SingleTableView):
         return qs.with_balance()
 
 
-# class StreamListView(TemplateView):
-#     template_name = "mex/stream_list.html"
-#
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
-#         api = get_client()
-#         streams = api.liststreams()
-#         ctx["streams"] = sorted(streams, key=lambda k: -k["items"])
-#         return ctx
-
-
 class StreamTableView(SingleTableView):
     model = Stream
     template_name = "mex/stream_list2.html"
     table_class = StreamTable
-    queryset = Stream.objects.all()
+    queryset = Stream.objects.filter(show=True)
     paginate_by = 17
 
-    # def get_context_data(self, **kwargs):
-    #     ctx = super().get_context_data(**kwargs)
-    #     api = get_client()
-    #     streams = api.liststreams()
-    #     ctx["streams"] = sorted(streams, key=lambda k: -k["items"])
-    #     return ctx
 
+class StreamItemTableView(SingleTableMixin, FilterView):
 
-class StreamItemTableView(SingleTableView):
     model = StreamItem
     template_name = "mex/stream_item_list.html"
     table_class = StreamItemTable
     paginate_by = 17
+    filterset_class = StreamItemFilter
 
     def get_queryset(self):
         stream = get_object_or_404(Stream, name=self.kwargs['stream'])
-        return StreamItem.objects.filter(stream=stream)
+        return StreamItem.objects.filter(stream=stream).only(
+            'time', 'keys',
+        )
 
 
 class TokenListView(TemplateView):
@@ -262,10 +248,6 @@ class StreamDetailView(TemplateView):
                 except Exception as e:
                     ctx["stream_items"][key]["formatted_data"] = item["data"]
         return ctx
-
-
-
-
 
 
 class TokenDetailView(TemplateView):

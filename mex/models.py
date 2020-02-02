@@ -144,6 +144,7 @@ class StreamItem(models.Model):
         indexes = [
             models.Index(fields=['-time'])
         ]
+        ordering = ('-time',)
 
     def __str__(self):
         return "/".join(self.keys)
