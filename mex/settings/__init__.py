@@ -39,10 +39,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "django_tables2",
+    "django_filters",
     "django_extensions",
     "prettyjson",
     "mex.apps.MexConfig",
+    "bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -124,15 +127,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-DJANGO_TABLES2_TEMPLATE = "mex/table.html"
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
 
 MEX_BRAND = "COBLO Explorer"
+MEX_FEATURED_STREAM = "iscc"
 MEX_ADMIN = "Guardian"
 MEX_MINER = "Validator"
 MEX_ASSET = "Token"
 MEX_SYMBOL = "CBL"
 MEX_CURRENCY = "CoBlo"
-MEX_FOOTER = "Copyright 2018 <a href='https://content-blockchain.org'>The Content Blockchain Project</a>"
+MEX_FOOTER = "Copyright 2017-2020 <a style='color:white;' href='https://content-blockchain.org'>The Content Blockchain Project</a>"
 MEX_IGNORE_STREAMS = ["root", "testiscc", "another"]
 MEX_SYNC_HORIZON = 300
 
