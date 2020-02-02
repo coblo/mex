@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
+import json
+
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
+from django.utils.safestring import mark_safe
 from prettyjson import PrettyJSONWidget
+from pygments import highlight
+from pygments.formatters.html import HtmlFormatter
+from pygments.lexers.data import JsonLexer
 
 from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
 from django.conf.locale.en import formats as en_formats
+
+from mex.paginator import TimeLimitedPaginator
 
 
 en_formats.DATETIME_FORMAT = "Y-m-d H:i"
@@ -148,8 +156,7 @@ class AddressAdmin(BaseModelAdmin):
 class StreamAdmin(BaseModelAdmin):
     list_display = (
         "name",
-        # 'createtxid',
-        "details",
+        "description",
         "restrict",
         "keys",
         "items",
@@ -158,18 +165,93 @@ class StreamAdmin(BaseModelAdmin):
         "subscribed",
         "synchronized",
         "monitor",
+        "show",
     )
 
-    list_editable = ("monitor",)
+    list_editable = ("monitor", "show")
+    readonly_fields = (
+        'confirmed',
+        'createtxid',
+        'creators',
+        'details',
+        'indexes',
+        'items',
+        'keys',
+        'name',
+        'publishers',
+        'restrict',
+        'retrieve',
+        'salted',
+        'streamref',
+        'subscribed',
+        'synchronized',
+    )
 
     raw_id_fields = ("createtxid", "creators")
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'custom_description', 'monitor', 'show')
+        }),
+        ('Meta', {
+            'fields': (('streamref', 'creators'), 'createtxid', 'details'),
+        }),
+        ('Stats', {
+            'fields': ('items', 'confirmed', 'publishers', 'keys', 'synchronized'),
+        }),
+        ('Configuration', {
+            'fields': ('indexes', 'restrict', 'retrieve', 'salted', 'subscribed'),
+        }),
+    )
+
 
 
 @admin.register(StreamItem)
 class StreamItemAdmin(BaseModelAdmin):
     list_display = ("time", "stream", "keys", "offchain", "available", "valid")
-
-    search_fields = ("keys", "data")
+    search_fields = ("keys",)
     list_filter = ("stream",)
+    raw_id_fields = ("output", "publishers", "stream",)
+    exclude = ('data', )
+    readonly_fields = (
+        'output',
+        'stream',
+        'time',
+        'keys',
+        'data_prettified',
+        'publishers',
+        'available',
+        'offchain',
+        'valid',
+    )
+    show_full_result_count = False
+    list_select_related = ('stream',)
+    paginator = TimeLimitedPaginator
 
-    raw_id_fields = ("output", "publishers",)
+    def get_search_results(self, request, queryset, search_term):
+        if not search_term:
+            return queryset, False
+        qs = queryset.filter(keys__overlap=[search_term]).distinct()
+        return qs, True
+
+    def data_prettified(self, instance):
+        """Function to display pretty version of our data"""
+
+        # Convert the data to sorted, indented JSON
+        response = json.dumps(instance.data, sort_keys=True, indent=2)
+
+        # Truncate the data. Alter as needed
+        response = response[:5000]
+
+        # Get the Pygments formatter
+        formatter = HtmlFormatter(style='colorful')
+
+        # Highlight the data
+        response = highlight(response, JsonLexer(), formatter)
+
+        # Get the stylesheet
+        style = "<style>" + formatter.get_style_defs() + "</style><br>"
+
+        # Safe the output
+        return mark_safe(style + response)
+
+    data_prettified.short_description = 'Data'

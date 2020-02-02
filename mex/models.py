@@ -75,22 +75,38 @@ class Address(models.Model):
 
 class Stream(models.Model):
 
-    confirmed = models.IntegerField()
-    createtxid = models.ForeignKey("mex.Transaction", on_delete=CASCADE, null=True)
-    creators = models.ManyToManyField("mex.Address")
-    details = pg_models.JSONField()
-    indexes = pg_models.JSONField()
-    items = models.IntegerField()
-    keys = models.IntegerField()
-    name = models.CharField(max_length=52, primary_key=True)
-    publishers = models.IntegerField()
-    restrict = pg_models.JSONField()
-    retrieve = models.NullBooleanField()
-    salted = models.NullBooleanField()
-    streamref = models.CharField(max_length=255)
-    subscribed = models.BooleanField()
-    synchronized = models.BooleanField()
-    monitor = models.BooleanField(default=False)
+    confirmed = models.IntegerField(editable=False)
+    createtxid = models.ForeignKey("mex.Transaction", on_delete=CASCADE, null=True, editable=False)
+    creators = models.ManyToManyField("mex.Address", editable=False)
+    details = pg_models.JSONField(editable=False)
+    indexes = pg_models.JSONField(editable=False)
+    items = models.IntegerField(editable=False)
+    keys = models.IntegerField(editable=False)
+    name = models.CharField(max_length=52, primary_key=True, editable=False)
+    publishers = models.IntegerField(editable=False)
+    restrict = pg_models.JSONField(editable=False)
+    retrieve = models.NullBooleanField(editable=False)
+    salted = models.NullBooleanField(editable=False)
+    streamref = models.CharField(max_length=255, editable=False)
+    subscribed = models.BooleanField(editable=False)
+    synchronized = models.BooleanField(editable=False)
+    monitor = models.BooleanField(
+        default=False,
+        help_text='Import stream items to mex database.'
+    )
+    show = models.BooleanField(
+        default=True,
+        help_text='Show steam in frontend.'
+    )
+    custom_description = models.CharField(
+        default='',
+        max_length=256,
+        blank=True,
+        help_text='Custom stream description for frontend.'
+    )
+
+    class Meta:
+        ordering = ('name', )
 
     def __str__(self):
         return self.name
@@ -103,7 +119,7 @@ class Stream(models.Model):
 
     @property
     def description(self):
-        return self.details.get("info")
+        return self.custom_description or self.details.get("info")
 
 
 class StreamItem(models.Model):
@@ -113,15 +129,21 @@ class StreamItem(models.Model):
         on_delete=CASCADE,
         help_text="The transaction output that created this stream item.",
         primary_key=True,
+        editable=False,
     )
-    stream = models.ForeignKey("mex.Stream", on_delete=CASCADE)
-    available = models.BooleanField()
+    stream = models.ForeignKey("mex.Stream", on_delete=CASCADE, editable=False)
+    available = models.BooleanField(editable=False)
     data = pg_models.JSONField()
-    keys = pg_models.ArrayField(models.CharField(max_length=256))
-    offchain = models.BooleanField()
-    publishers = models.ManyToManyField("mex.Address")
-    time = models.DateTimeField()
-    valid = models.BooleanField()
+    keys = pg_models.ArrayField(models.CharField(max_length=256), editable=False)
+    offchain = models.BooleanField(editable=False)
+    publishers = models.ManyToManyField("mex.Address", editable=False)
+    time = models.DateTimeField(editable=False)
+    valid = models.BooleanField(editable=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['-time'])
+        ]
 
     def __str__(self):
         return "/".join(self.keys)
