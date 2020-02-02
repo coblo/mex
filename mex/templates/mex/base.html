@@ -1,3 +1,5 @@
+{% load static %}
+{% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,16 +9,14 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ settings.EXPLORER_NAME }}</title>
-    {% load static %}
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext"
           rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous">
+    {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'main.css' %}">
     <script defer
-            src="//use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+            src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/js/all.min.js"
+            integrity="sha256-0vuk8LXoyrmCjp1f0O300qo1M75ZQyhH9X3J6d+scmk="
+            crossorigin="anonymous"></script>
 
 
 </head>
@@ -75,23 +75,10 @@
     </div>
 </footer>
 
-<script
-        src="//code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+{% bootstrap_javascript jquery='full' %}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intercooler-js/1.2.3/intercooler.min.js"
         integrity="sha256-50C/DlH4b+mNf1L7FLgH1X8W0wT0qMkQ+CJ5+LmfFdo="
         crossorigin="anonymous"></script>
-<script>
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
-</script>
 </body>
 </html>
