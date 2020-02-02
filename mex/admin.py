@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
-import json
-
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
-from django.utils.safestring import mark_safe
 from prettyjson import PrettyJSONWidget
-from pygments import highlight
-from pygments.formatters.html import HtmlFormatter
-from pygments.lexers.data import JsonLexer
-
 from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
 from django.conf.locale.en import formats as en_formats
 
 from mex.paginator import TimeLimitedPaginator
+from mex.utils import render_json
 
 
 en_formats.DATETIME_FORMAT = "Y-m-d H:i"
@@ -232,23 +226,6 @@ class StreamItemAdmin(BaseModelAdmin):
 
     def data_prettified(self, instance):
         """Function to display pretty version of our data"""
-
-        # Convert the data to sorted, indented JSON
-        response = json.dumps(instance.data, sort_keys=True, indent=2)
-
-        # Truncate the data. Alter as needed
-        response = response[:5000]
-
-        # Get the Pygments formatter
-        formatter = HtmlFormatter(style="colorful")
-
-        # Highlight the data
-        response = highlight(response, JsonLexer(), formatter)
-
-        # Get the stylesheet
-        style = "<style>" + formatter.get_style_defs() + "</style><br>"
-
-        # Safe the output
-        return mark_safe(style + response)
+        return render_json(instance.data)
 
     data_prettified.short_description = "Data"

@@ -145,11 +145,16 @@ class StreamItem(models.Model):
     def __str__(self):
         return "/".join(self.keys)
 
+    def dashed(self):
+        return "-".join(self.keys)
+
     def natural_key(self):
         return self.output.natural_key()
 
     def get_absolute_url(self):
-        return reverse("stream-item-detail", args=[self.natural_key()])
+        return reverse(
+            "stream-item-detail", args=[self.stream.natural_key(), self.natural_key()]
+        )
 
 
 class Output(models.Model):

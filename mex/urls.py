@@ -37,6 +37,11 @@ urlpatterns = [
     path(
         "stream/<str:stream>", views.StreamItemTableView.as_view(), name="stream-detail"
     ),
+    path(
+        "stream/<str:stream>/<str:output>/",
+        views.StreamItemDetail.as_view(),
+        name="stream-item-detail",
+    ),
     path("token/<str:token>", views.TokenDetailView.as_view(), name="token-detail"),
     path("table/blocks", views.TableBlocks.as_view(), name="table-blocks"),
     path(

@@ -200,16 +200,14 @@ class AddressDetailView(DetailView):
         for perm in api.listpermissions("mine"):
             if (
                 perm["address"] == address
-                and perm["startblock"] < blocks
-                and perm["endblock"] > blocks
+                and perm["startblock"] < blocks < perm["endblock"]
             ):
                 ctx["miner"] = True
         ctx["admin"] = False
         for perm in api.listpermissions("admin"):
             if (
                 perm["address"] == address
-                and perm["startblock"] < blocks
-                and perm["endblock"] > blocks
+                and perm["startblock"] < blocks < perm["endblock"]
             ):
                 ctx["admin"] = True
         qs = super().get_queryset()
@@ -227,6 +225,17 @@ class AddressDetailView(DetailView):
                     "height": out.transaction.block.height,
                 }
             )
+        return ctx
+
+
+class StreamItemDetail(TemplateView):
+    template_name = "mex/stream_item_detail.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        tx, out_idx = self.kwargs.get("output").split(":")
+        output = Output.objects.get(transaction=tx, out_idx=out_idx)
+        ctx["streamitem"] = output.streamitem
         return ctx
 
 

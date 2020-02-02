@@ -1,0 +1,10 @@
+{% extends "mex/base.html" %}
+{% load mex_tags %}
+
+{% block content %}
+    <h3 class="mt-4">
+        Stream Item Details
+    </h3>
+    <h4>Keys: {{ streamitem.dashed }}</h4>
+    <pre style="padding: 10px 10px 10px 10px !important; background-color: aliceblue">{{ streamitem.data|render_json }}</pre>
+{% endblock %}

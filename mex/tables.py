@@ -87,7 +87,7 @@ class StreamTable(tables.Table):
 class StreamItemTable(tables.Table):
 
     time = DateTimeColumn(
-        verbose_name="Time (UTC)", format="Y-m-d H:i:s", orderable=True
+        verbose_name="Time (UTC)", format="Y-m-d H:i:s", orderable=True, linkify=True,
     )
     keys = Column(verbose_name="Keys", orderable=False)
     data = Column(verbose_name="Data", orderable=False)
