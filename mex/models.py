@@ -76,7 +76,9 @@ class Address(models.Model):
 class Stream(models.Model):
 
     confirmed = models.IntegerField(editable=False)
-    createtxid = models.ForeignKey("mex.Transaction", on_delete=CASCADE, null=True, editable=False)
+    createtxid = models.ForeignKey(
+        "mex.Transaction", on_delete=CASCADE, null=True, editable=False
+    )
     creators = models.ManyToManyField("mex.Address", editable=False)
     details = pg_models.JSONField(editable=False)
     indexes = pg_models.JSONField(editable=False)
@@ -91,22 +93,18 @@ class Stream(models.Model):
     subscribed = models.BooleanField(editable=False)
     synchronized = models.BooleanField(editable=False)
     monitor = models.BooleanField(
-        default=False,
-        help_text='Import stream items to mex database.'
+        default=False, help_text="Import stream items to mex database."
     )
-    show = models.BooleanField(
-        default=True,
-        help_text='Show steam in frontend.'
-    )
+    show = models.BooleanField(default=True, help_text="Show steam in frontend.")
     custom_description = models.CharField(
-        default='',
+        default="",
         max_length=256,
         blank=True,
-        help_text='Custom stream description for frontend.'
+        help_text="Custom stream description for frontend.",
     )
 
     class Meta:
-        ordering = ('name', )
+        ordering = ("name",)
 
     def __str__(self):
         return self.name
@@ -141,10 +139,8 @@ class StreamItem(models.Model):
     valid = models.BooleanField(editable=False)
 
     class Meta:
-        indexes = [
-            models.Index(fields=['-time'])
-        ]
-        ordering = ('-time',)
+        indexes = [models.Index(fields=["-time"])]
+        ordering = ("-time",)
 
     def __str__(self):
         return "/".join(self.keys)

@@ -170,39 +170,36 @@ class StreamAdmin(BaseModelAdmin):
 
     list_editable = ("monitor", "show")
     readonly_fields = (
-        'confirmed',
-        'createtxid',
-        'creators',
-        'details',
-        'indexes',
-        'items',
-        'keys',
-        'name',
-        'publishers',
-        'restrict',
-        'retrieve',
-        'salted',
-        'streamref',
-        'subscribed',
-        'synchronized',
+        "confirmed",
+        "createtxid",
+        "creators",
+        "details",
+        "indexes",
+        "items",
+        "keys",
+        "name",
+        "publishers",
+        "restrict",
+        "retrieve",
+        "salted",
+        "streamref",
+        "subscribed",
+        "synchronized",
     )
 
     raw_id_fields = ("createtxid", "creators")
     fieldsets = (
-        (None, {
-            'fields': ('name', 'custom_description', 'monitor', 'show')
-        }),
-        ('Meta', {
-            'fields': (('streamref', 'creators'), 'createtxid', 'details'),
-        }),
-        ('Stats', {
-            'fields': ('items', 'confirmed', 'publishers', 'keys', 'synchronized'),
-        }),
-        ('Configuration', {
-            'fields': ('indexes', 'restrict', 'retrieve', 'salted', 'subscribed'),
-        }),
+        (None, {"fields": ("name", "custom_description", "monitor", "show")}),
+        ("Meta", {"fields": (("streamref", "creators"), "createtxid", "details")}),
+        (
+            "Stats",
+            {"fields": ("items", "confirmed", "publishers", "keys", "synchronized")},
+        ),
+        (
+            "Configuration",
+            {"fields": ("indexes", "restrict", "retrieve", "salted", "subscribed")},
+        ),
     )
-
 
 
 @admin.register(StreamItem)
@@ -210,21 +207,21 @@ class StreamItemAdmin(BaseModelAdmin):
     list_display = ("time", "stream", "keys", "offchain", "available", "valid")
     search_fields = ("keys",)
     list_filter = ("stream",)
-    raw_id_fields = ("output", "publishers", "stream",)
-    exclude = ('data', )
+    raw_id_fields = ("output", "publishers", "stream")
+    exclude = ("data",)
     readonly_fields = (
-        'output',
-        'stream',
-        'time',
-        'keys',
-        'data_prettified',
-        'publishers',
-        'available',
-        'offchain',
-        'valid',
+        "output",
+        "stream",
+        "time",
+        "keys",
+        "data_prettified",
+        "publishers",
+        "available",
+        "offchain",
+        "valid",
     )
     show_full_result_count = False
-    list_select_related = ('stream',)
+    list_select_related = ("stream",)
     paginator = TimeLimitedPaginator
 
     def get_search_results(self, request, queryset, search_term):
@@ -243,7 +240,7 @@ class StreamItemAdmin(BaseModelAdmin):
         response = response[:5000]
 
         # Get the Pygments formatter
-        formatter = HtmlFormatter(style='colorful')
+        formatter = HtmlFormatter(style="colorful")
 
         # Highlight the data
         response = highlight(response, JsonLexer(), formatter)
@@ -254,4 +251,4 @@ class StreamItemAdmin(BaseModelAdmin):
         # Safe the output
         return mark_safe(style + response)
 
-    data_prettified.short_description = 'Data'
+    data_prettified.short_description = "Data"

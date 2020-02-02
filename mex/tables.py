@@ -96,22 +96,26 @@ class StreamItemTable(tables.Table):
         model = StreamItem
         fields = ("time", "keys", "data")
         attrs = {"class": "table table-sm table-striped table-hover"}
-        order_by = '-time'
+        order_by = "-time"
 
     def render_keys(self, value):
         if isinstance(value, list):
-            value = '-'.join(value)
+            value = "-".join(value)
         return value[:55]
 
     def render_data(self, value):
         if isinstance(value, str):
             return value[:64]
-        data = value.get('json')
+        data = value.get("json")
         if data:
-            title = data.get('title') or data.get('ISCC') or data.get('ISBN') or data.get('comment')
+            title = (
+                data.get("title")
+                or data.get("ISCC")
+                or data.get("ISBN")
+                or data.get("comment")
+            )
         else:
-            title = value.get('text')
+            title = value.get("text")
         if not title:
             title = str(value)
-        return title[:64] if title else ''
-
+        return title[:64] if title else ""

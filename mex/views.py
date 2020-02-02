@@ -9,8 +9,13 @@ from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, SingleTableView, SingleTableMixin
 from mex.filters import StreamItemFilter
 from mex.rpc import get_client
-from mex.tables import BlockTable, TransactionTable, AddressTable, StreamTable, \
-    StreamItemTable
+from mex.tables import (
+    BlockTable,
+    TransactionTable,
+    AddressTable,
+    StreamTable,
+    StreamItemTable,
+)
 from mex.models import Block, Transaction, Address, Output, Stream, StreamItem
 from mex.utils import public_key_to_address
 
@@ -88,10 +93,8 @@ class StreamItemTableView(SingleTableMixin, FilterView):
     filterset_class = StreamItemFilter
 
     def get_queryset(self):
-        stream = get_object_or_404(Stream, name=self.kwargs['stream'])
-        return StreamItem.objects.filter(stream=stream).only(
-            'time', 'keys',
-        )
+        stream = get_object_or_404(Stream, name=self.kwargs["stream"])
+        return StreamItem.objects.filter(stream=stream).only("time", "keys")
 
 
 class TokenListView(TemplateView):

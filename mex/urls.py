@@ -34,7 +34,9 @@ urlpatterns = [
     path(
         "addr/<str:address>", views.AddressDetailView.as_view(), name="address-detail"
     ),
-    path("stream/<str:stream>", views.StreamItemTableView.as_view(), name="stream-detail"),
+    path(
+        "stream/<str:stream>", views.StreamItemTableView.as_view(), name="stream-detail"
+    ),
     path("token/<str:token>", views.TokenDetailView.as_view(), name="token-detail"),
     path("table/blocks", views.TableBlocks.as_view(), name="table-blocks"),
     path(

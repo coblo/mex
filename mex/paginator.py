@@ -18,22 +18,23 @@ class StreamPaginator(Paginator):
         api = get_client()
         try:
             stream_info = api.getstreaminfo(self.stream)
-            return int(stream_info.get('items'))
+            return int(stream_info.get("items"))
         except Exception:
             return 999999
 
 
 class TimeLimitedPaginator(Paginator):
-   """
+    """
    Paginator that enforces a timeout on the count operation.
    If the operations times out, a fake bogus value is
    returned instead.
    """
-   @cached_property
-   def count(self):
-       with transaction.atomic(), connection.cursor() as cursor:
-           cursor.execute('SET LOCAL statement_timeout TO 200;')
-           try:
-               return super().count
-           except OperationalError:
-               return 9999999
+
+    @cached_property
+    def count(self):
+        with transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute("SET LOCAL statement_timeout TO 200;")
+            try:
+                return super().count
+            except OperationalError:
+                return 9999999

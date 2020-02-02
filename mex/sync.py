@@ -249,12 +249,12 @@ def sync_stream_items():
             new_stream_items = {}
 
             # collect referenced outputs
-            txids_raw = [r['txid'] for r in raw_items]
+            txids_raw = [r["txid"] for r in raw_items]
             outputs = Output.objects.filter(transaction_id__in=txids_raw).only(
-                'id', 'transaction_id', 'out_idx'
+                "id", "transaction_id", "out_idx"
             )
             # Map txid/out_idx composite to primary key of Output
-            outputs = {f'{o.transaction_id}{o.out_idx}': o.pk for o in outputs}
+            outputs = {f"{o.transaction_id}{o.out_idx}": o.pk for o in outputs}
             for raw_item in raw_items:
                 if raw_item["confirmations"] == 0:
                     continue
@@ -263,7 +263,7 @@ def sync_stream_items():
                 txid = raw_item.pop("txid")
                 vout = raw_item.pop("vout")
 
-                raw_item["output_id"] = outputs[f'{txid}{vout}']
+                raw_item["output_id"] = outputs[f"{txid}{vout}"]
                 raw_item["stream_id"] = stream_obj.pk
                 raw_item["time"] = datetime.fromtimestamp(raw_item["time"], tz=pytz.utc)
                 del raw_item["blockhash"]
@@ -284,8 +284,7 @@ def sync_stream_items():
             height += 100
         if total_new_items:
             log.info(
-                "imported %s items from stream %s"
-                % (total_new_items, stream_obj.name)
+                "imported %s items from stream %s" % (total_new_items, stream_obj.name)
             )
 
 
