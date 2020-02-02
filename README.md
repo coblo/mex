@@ -9,6 +9,8 @@
 This project requires python 3, postgres and a MultiChain node with RPC 
 access for local development and testing.
 
+Tested against Multichain 2.0.5 with protocol version 20002.
+
 It is recommended to use a python virtualenv for development.
 Install dependencies in your activated virtualenv with 
 `pip install -r requirements.txt`. Create your configuration in 
@@ -42,6 +44,8 @@ shown by the output of `fab reset`.
 
 - [x] Minimal datamodel for blocks, transactions, inputs, outputs and addresses
 - [x] Synchronization of blockchain data via JSON-RPC
+- [x] Web Frontend
+- [x] Stream Indexing
+- [x] Stream Search by Key
 - [ ] Minimal REST api for webfrontend with node bridge/proxy
-- [ ] Web Frontend
 - [ ] Deployment scripts
