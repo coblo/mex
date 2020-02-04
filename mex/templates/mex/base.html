@@ -1,27 +1,27 @@
+{% load static %}
+{% load bootstrap4 %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+{% block header %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ settings.EXPLORER_NAME }}</title>
-    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext"
+          rel="stylesheet">
+    {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'main.css' %}">
-    <link href="https://fonts.googleapis.com/css?family=Fira+Mono"
-          rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Oswald"
-          rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
     <script defer
-            src="//use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-
-
+            src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/js/all.min.js"
+            integrity="sha256-0vuk8LXoyrmCjp1f0O300qo1M75ZQyhH9X3J6d+scmk="
+            crossorigin="anonymous"></script>
+{% endblock %}
 </head>
+
+
 <body>
 {% block nav %}
     <nav class="navbar navbar-expand-sm navbar-dark bg-info">
@@ -47,7 +47,8 @@
                            href="{% url 'blocks' %}">Blocks</a>
                     </li>
                     <li class="nav-item {% if request.resolver_match.view_name == 'transactions' or request.resolver_match.view_name == 'transaction-detail' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'transactions' %}">Transactions</a>
+                        <a class="nav-link"
+                           href="{% url 'transactions' %}">Transactions</a>
                     </li>
                     <li class="nav-item {% if request.resolver_match.view_name == 'addresses' or request.resolver_match.view_name == 'address-detail' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'addresses' %}">Addresses</a>
@@ -76,16 +77,10 @@
     </div>
 </footer>
 
-<script
-        src="//code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+{% bootstrap_javascript jquery='full' %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intercooler-js/1.2.3/intercooler.min.js"
+        integrity="sha256-50C/DlH4b+mNf1L7FLgH1X8W0wT0qMkQ+CJ5+LmfFdo="
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
-<script src="https://intercoolerreleases-leaddynocom.netdna-ssl.com/intercooler-1.2.1.min.js"></script>
 </body>
 </html>
