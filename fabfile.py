@@ -23,3 +23,11 @@ def reset():
     local('python manage.py makemigrations mex')
     local('python manage.py migrate --noinput --run-syncdb')
     local('python manage.py create_demo_user')
+
+
+@task
+def update():
+    """Apply migrations"""
+    print('Applying migrations.')
+    local('python manage.py migrate --noinput --run-syncdb')
+
