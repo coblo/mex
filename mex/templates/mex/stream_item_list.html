@@ -14,7 +14,7 @@
                            title="Multiple values may be separated by commas."
                            id="id_keys"
                            aria-label="Search"
-                           {% if request.GET.keys %}value="{{ request.GET.keys }}"{% endif %}
+                           {% if search_keys %}value="{{ search_keys }}"{% endif %}
                     >
                     <div class="input-group-append">
                         <button class="btn btn-info" type="submit">Search</button>

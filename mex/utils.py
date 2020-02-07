@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import textwrap
 from _sha256 import sha256
 from binascii import unhexlify
 from hashlib import new
@@ -80,3 +81,55 @@ def render_json(data):
 
     # Safe the output
     return mark_safe(style + response)
+
+
+def iscc_clean(i):
+    """Remove leading scheme and dashes"""
+    return i.split(":")[-1].strip().replace("-", "")
+
+
+ISCC_SYMBOLS = "C23456789rB1ZEFGTtYiAaVvMmHUPWXKDNbcdefghLjkSnopRqsJuQwxyz"
+
+
+def iscc_verify(i):
+    i = iscc_clean(i)
+    for c in i:
+        if c not in ISCC_SYMBOLS:
+            raise ValueError('Illegal character "{}" in ISCC Code'.format(c))
+    for component_code in iscc_split(i):
+        iscc_verify_component(component_code)
+
+
+ISCC_COMPONENT_CODES = [
+    "CC",
+    "CT",
+    "Ct",
+    "CY",
+    "Ci",
+    "CA",
+    "Ca",
+    "CV",
+    "Cv",
+    "CM",
+    "Cm",
+    "CD",
+    "CR",
+]
+
+
+def iscc_verify_component(component_code):
+
+    if not len(component_code) == 13:
+        raise ValueError(
+            "Illegal component length {} for {}".format(
+                len(component_code), component_code
+            )
+        )
+
+    header_code = component_code[:2]
+    if header_code not in ISCC_COMPONENT_CODES:
+        raise ValueError("Illegal component header {}".format(header_code))
+
+
+def iscc_split(i):
+    return textwrap.wrap(iscc_clean(i), 13)

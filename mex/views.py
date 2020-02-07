@@ -96,6 +96,11 @@ class StreamItemTableView(SingleTableMixin, FilterView):
         stream = get_object_or_404(Stream, name=self.kwargs["stream"])
         return StreamItem.objects.filter(stream=stream).only("time", "keys")
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["search_keys"] = self.request.GET.get("keys", None)
+        return ctx
+
 
 class TokenListView(TemplateView):
     template_name = "mex/token_list.html"
