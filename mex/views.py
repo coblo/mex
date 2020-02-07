@@ -130,11 +130,15 @@ class TransactionDetailView(TemplateView):
         api = get_client()
         ctx = super().get_context_data(**kwargs)
         tx_raw = api.getrawtransaction(ctx["hash"], 4)
-        if tx_raw["confirmations"]:
-            tx_db = Transaction.objects.get(hash=tx_raw["txid"])
-            outputs_db = tx_db.outputs_for_tx.order_by("out_idx")
+        if tx_raw.get("confirmations"):
+            try:
+                tx_db = Transaction.objects.get(hash=tx_raw["txid"])
+                outputs_db = tx_db.outputs_for_tx.order_by("out_idx")
+            except Transaction.DoesNotExist:
+                outputs_db = None
         else:
             outputs_db = None
+
         ctx["details"] = tx_raw
         ctx["raw"] = "raw" in self.request.GET
         blockchain_params = api.getblockchainparams()
