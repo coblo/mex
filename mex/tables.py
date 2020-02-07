@@ -94,9 +94,13 @@ class StreamItemTable(tables.Table):
 
     class Meta:
         model = StreamItem
-        fields = ("time", "keys", "data")
+        fields = ("txid", "time", "keys", "data")
         attrs = {"class": "table table-sm table-striped table-hover"}
         order_by = "-time"
+
+    def render_txid(self, value):
+        lnk = '<a href="/tx/{}">{}</a>'.format(value, value[:7])
+        return mark_safe(lnk)
 
     def render_keys(self, value):
         if isinstance(value, list):

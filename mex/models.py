@@ -151,6 +151,9 @@ class StreamItem(models.Model):
     def natural_key(self):
         return self.output.natural_key()
 
+    def txid(self):
+        return self.output.transaction_id
+
     def get_absolute_url(self):
         return reverse(
             "stream-item-detail", args=[self.stream.natural_key(), self.natural_key()]
