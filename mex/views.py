@@ -240,6 +240,12 @@ class StreamItemDetail(TemplateView):
         tx, out_idx = self.kwargs.get("output").split(":")
         output = Output.objects.get(transaction=tx, out_idx=out_idx)
         ctx["streamitem"] = output.streamitem
+        if self.kwargs.get("stream") == "iscc":
+            cid = output.streamitem.keys[1]
+            smart_licenses = StreamItem.objects.filter(
+                keys__1__contains=cid, stream="smart-license"
+            )
+            ctx["smartlicenses"] = smart_licenses
         return ctx
 
 

@@ -5,6 +5,38 @@
     <h3 class="mt-4">
         Stream Item Details
     </h3>
-    <h4>Keys: {{ streamitem.dashed }}</h4>
+    <p><small><b>Keys:</b> {{ streamitem.dashed }}</small><br>
+        <small><b>TxID:</b> <a
+                href="{% url "transaction-detail" hash=streamitem.output.transaction_id %}">{{ streamitem.output.transaction_id }}</a></small>
+    </p>
     <pre style="padding: 10px 10px 10px 10px !important; background-color: aliceblue">{{ streamitem.data|render_json }}</pre>
+    {% if smartlicenses %}
+        <h3 class="mt-4">Matching SmartLicenses:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>License-ID</th>
+                <th>Rights</th>
+                <th>ISCC</th>
+                <th>Transaction Models</th>
+                <th>Details</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sl in smartlicenses %}
+                <tr>
+                    <td>
+                        <a href="/stream/smart-license/{{ sl.output.transaction_id }}:{{ sl.output.out_idx }}">{{ sl.keys.0|truncatechars:7 }}</a>
+                    </td>
+                    <td>{{ sl.data.json.rights_modules }}</td>
+                    <td>{{ sl.keys.1 }}</td>
+                    <td>{{ sl.data.json.transaction_models.0 }}</td>
+                    <td>
+                        <a href="https://smartlicense.coblo.net/smartlicense/{{ sl.keys.0 }}">Read</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
