@@ -4,6 +4,12 @@ body {
     min-height: 100vh;
 }
 
+@media (min-width: 1200px) {
+    .container{
+        max-width: 90%;
+    }
+}
+
 main {
     flex: 1;
 }
