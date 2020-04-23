@@ -11,6 +11,8 @@ from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers.data import JsonLexer
 
+from mex.custom_sort import make_custom_sort
+
 
 def public_key_to_address(public_key: str, pkhv, cv):
     """Create Address from a public key.
@@ -63,9 +65,19 @@ def xor_bytes(a, b):
     return bytes(result)
 
 
+custom_sort = make_custom_sort(
+    [
+        ["title", "extra", "tophash", "meta"],
+        ["schema", "mediatype", "data", "url"],
+        ["@context", "@type", "@id", "name", "identifier"],
+    ]
+)
+
+
 def render_json(data):
     # Convert the data to sorted, indented JSON
-    response = json.dumps(data, sort_keys=True, indent=2)
+    ds = custom_sort(data)
+    response = json.dumps(ds, sort_keys=False, indent=2)
 
     # Truncate the data. Alter as needed
     response = response[:5000]
