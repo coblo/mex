@@ -277,7 +277,7 @@ def sync_stream_items():
                 s_item_obj = StreamItem(**raw_item)
                 new_stream_items[s_item_obj] = publishers
 
-            StreamItem.objects.bulk_create(new_stream_items.keys())
+            StreamItem.objects.bulk_create(new_stream_items.keys(), ignore_conflicts=True)
             for item_obj, publishers in new_stream_items.items():
                 item_obj.publishers.add(*publishers)
             total_new_items += len(new_stream_items.keys())
