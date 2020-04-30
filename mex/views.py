@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
+from functools import partial
+
 import ubjson
 from binascii import unhexlify
 from django.conf import settings
@@ -8,6 +10,7 @@ from django.views.generic import DetailView, TemplateView
 from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, SingleTableView, SingleTableMixin
 from mex.filters import StreamItemFilter
+from mex.paginator import StreamPaginator
 from mex.rpc import get_client
 from mex.tables import (
     BlockTable,
@@ -91,6 +94,10 @@ class StreamItemTableView(SingleTableMixin, FilterView):
     table_class = StreamItemTable
     paginate_by = 17
     filterset_class = StreamItemFilter
+
+    @property
+    def paginator_class(self):
+        return partial(StreamPaginator, stream=self.kwargs["stream"])
 
     def get_queryset(self):
         stream = get_object_or_404(Stream, name=self.kwargs["stream"])

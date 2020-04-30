@@ -9,16 +9,15 @@ from mex.rpc import get_client
 class StreamPaginator(Paginator):
     """Paginator that gets its total count via chain api. """
 
-    def __init__(self, stream, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.stream = kwargs.pop("stream")
         super().__init__(*args, **kwargs)
-        self.stream = stream
 
     @cached_property
     def count(self):
         api = get_client()
         try:
-            stream_info = api.getstreaminfo(self.stream)
-            return int(stream_info.get("items"))
+            return int(api.liststreams(self.stream)[0]["items"])
         except Exception:
             return 999999
 
