@@ -237,11 +237,36 @@ def sync_stream_items():
     streams = Stream.objects.filter(monitor=True)
     for stream_obj in streams:
         log.info("import items for stream %s" % stream_obj.name)
-        height = StreamItem.objects.filter(stream=stream_obj).count()
+
+        try:
+            ch_height = int(
+                api.liststreams(stream_obj.name, verbose=True)[0]["confirmed"]
+            )
+        except Exception:
+            log.info("cannot get chain height for {} stream".format(stream_obj.name))
+            continue
+
+        db_height = StreamItem.objects.filter(stream=stream_obj).count()
+        log.info("Stream {} chain at {} - db at {}".format(stream_obj.name, ch_height, db_height))
+
+        if db_height >= ch_height:
+            continue
+
         total_new_items = 0
+        iterations = 0
         while True:
+
+            # abort after 10000 imports for chain sync
+            iterations += 1
+            if not iterations % 100:
+                break
+
             raw_items = api.liststreamitems(
-                stream_obj.name, verbose=True, count=100, start=height
+                stream_obj.name,
+                verbose=True,
+                count=100,
+                start=db_height,
+                local_ordering=False,
             )
 
             if not raw_items:
@@ -277,11 +302,13 @@ def sync_stream_items():
                 s_item_obj = StreamItem(**raw_item)
                 new_stream_items[s_item_obj] = publishers
 
-            StreamItem.objects.bulk_create(new_stream_items.keys(), ignore_conflicts=True)
+            StreamItem.objects.bulk_create(
+                new_stream_items.keys(), ignore_conflicts=True
+            )
             for item_obj, publishers in new_stream_items.items():
                 item_obj.publishers.add(*publishers)
             total_new_items += len(new_stream_items.keys())
-            height += 100
+            db_height += 100
         if total_new_items:
             log.info(
                 "imported %s items from stream %s" % (total_new_items, stream_obj.name)
