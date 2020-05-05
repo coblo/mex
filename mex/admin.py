@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from prettyjson import PrettyJSONWidget
-from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
+from mex.models import Block, Transaction, Output, Address, Input
 from django.conf.locale.en import formats as en_formats
 
 from mex.paginator import TimeLimitedPaginator
@@ -144,88 +144,3 @@ class AddressAdmin(BaseModelAdmin):
         return obj.balance
 
     balance.admin_order_field = "balance"
-
-
-@admin.register(Stream)
-class StreamAdmin(BaseModelAdmin):
-    list_display = (
-        "name",
-        "description",
-        "restrict",
-        "keys",
-        "items",
-        "confirmed",
-        "publishers",
-        "subscribed",
-        "synchronized",
-        "monitor",
-        "show",
-    )
-
-    list_editable = ("monitor", "show")
-    readonly_fields = (
-        "confirmed",
-        "createtxid",
-        "creators",
-        "details",
-        "indexes",
-        "items",
-        "keys",
-        "name",
-        "publishers",
-        "restrict",
-        "retrieve",
-        "salted",
-        "streamref",
-        "subscribed",
-        "synchronized",
-    )
-
-    raw_id_fields = ("createtxid", "creators")
-    fieldsets = (
-        (None, {"fields": ("name", "custom_description", "monitor", "show")}),
-        ("Meta", {"fields": (("streamref", "creators"), "createtxid", "details")}),
-        (
-            "Stats",
-            {"fields": ("items", "confirmed", "publishers", "keys", "synchronized")},
-        ),
-        (
-            "Configuration",
-            {"fields": ("indexes", "restrict", "retrieve", "salted", "subscribed")},
-        ),
-    )
-
-
-@admin.register(StreamItem)
-class StreamItemAdmin(BaseModelAdmin):
-    list_display = ("time", "stream", "keys", "offchain", "available", "valid")
-    search_fields = ("keys",)
-    list_filter = ("stream",)
-    raw_id_fields = ("output", "publishers", "stream")
-    exclude = ("data",)
-    readonly_fields = (
-        "output",
-        "stream",
-        "time",
-        "keys",
-        "data_prettified",
-        "publishers",
-        "available",
-        "offchain",
-        "valid",
-    )
-    show_full_result_count = False
-    list_select_related = ("stream",)
-    paginator = TimeLimitedPaginator
-
-    def get_search_results(self, request, queryset, search_term):
-        if not search_term:
-            return queryset, False
-        qs = queryset.filter(keys__overlap=[search_term]).distinct()
-        return qs, True
-
-    def data_prettified(self, instance):
-        """Function to display pretty version of our data"""
-        return render_json(instance.data)
-
-    data_prettified.short_description = "Data"

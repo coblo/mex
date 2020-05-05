@@ -136,3 +136,11 @@ def iscc_verify_component(component_code):
 
 def iscc_split(i):
     return textwrap.wrap(iscc_clean(i), 13)
+
+
+def is_iscc(value):
+    try:
+        iscc_verify(value)
+        return True
+    except Exception:
+        return False

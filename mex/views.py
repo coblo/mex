@@ -4,7 +4,6 @@ from django.conf import settings
 from django.views.generic import DetailView, TemplateView
 from django_tables2 import MultiTableMixin, SingleTableView, SingleTableMixin
 from mcrpc.exceptions import RpcError
-from mex.filters import is_iscc
 from mex.rpc import get_client
 from mex.stream import LazyStream, TableDataLen
 from mex.tables import (
@@ -14,8 +13,8 @@ from mex.tables import (
     StreamItemApiTable,
     ListStreamTable,
 )
-from mex.models import Block, Transaction, Address, Output, Stream, StreamItem
-from mex.utils import public_key_to_address, iscc_split
+from mex.models import Block, Transaction, Address, Output
+from mex.utils import public_key_to_address, iscc_split, is_iscc
 
 
 class StatusView(TemplateView):
@@ -72,14 +71,6 @@ class AddressListView(SingleTableView):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.with_balance()
-
-
-class StreamTableView(SingleTableView):
-    model = Stream
-    template_name = "mex/stream_list2.html"
-    table_class = ListStreamTable
-    queryset = Stream.objects.filter(show=True)
-    paginate_by = 17
 
 
 class StreamsView(SingleTableMixin, TemplateView):
