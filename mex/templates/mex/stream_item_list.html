@@ -1,9 +1,10 @@
 {% extends "mex/base.html" %}
 {% load render_table from django_tables2 %}
+{% load humanize %}
 {% block content %}
     <div class="row mt-4">
         <div class="col">
-            <h1>Stream: {{ view.kwargs.stream }}</h1>
+            <h1>Stream: {{ view.kwargs.stream }} <span class="badge badge-danger">{{ table.rows|length|intword}} items</span></h1>
         </div>
         <div class="col align-self-end">
             <form action="" method="get">
@@ -21,6 +22,11 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <h2><small>{{ table.rows|length|intword}} entries</small></h2>
         </div>
     </div>
     <div class="row mt-4">
