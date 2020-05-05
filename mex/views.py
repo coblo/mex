@@ -137,8 +137,6 @@ class StreamItemApiTableView(SingleTableMixin, TemplateView):
         ctx["search_keys"] = self.request.GET.get("keys", "").strip()
         return ctx
 
-    set()
-
 
 class TokenListView(TemplateView):
     template_name = "mex/token_list.html"
