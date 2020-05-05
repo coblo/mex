@@ -22,7 +22,7 @@ urlpatterns = [
     path("blocks/", views.BlockListView.as_view(), name="blocks"),
     path("txs/", views.TransactionListView.as_view(), name="transactions"),
     path("addrs/", views.AddressListView.as_view(), name="addresses"),
-    path("streams/", views.StreamTableView.as_view(), name="streams"),
+    path("streams/", views.StreamsView.as_view(), name="streams"),
     path("tokens/", views.TokenListView.as_view(), name="tokens"),
     path("status/", views.StatusView.as_view(), name="status"),
     path("block/<str:hash>", views.BlockDetailView.as_view(), name="block-detail"),
@@ -35,7 +35,9 @@ urlpatterns = [
         "addr/<str:address>", views.AddressDetailView.as_view(), name="address-detail"
     ),
     path(
-        "stream/<str:stream>", views.StreamItemTableView.as_view(), name="stream-detail"
+        "stream/<str:stream>",
+        views.StreamItemApiTableView.as_view(),
+        name="stream-detail",
     ),
     path(
         "stream/<str:stream>/<str:output>/",
