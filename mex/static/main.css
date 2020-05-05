@@ -19,7 +19,7 @@ table {
     font-family: 'Ubuntu Mono', monospace;
 }
 
-.badge {
+.badge-info {
     font-size: 0.8rem !important;
     font-family: 'Ubuntu Mono', monospace !important;
     font-weight: 100 !important;
