@@ -4,13 +4,12 @@ import pytz
 from django.conf import settings
 from django.db import InterfaceError, OperationalError
 from django.db import connection
-
 from mex.exceptions import SyncError
 from mex.rpc import get_client
-from mex.models import Block, Transaction, Output, Address, Input, Stream, StreamItem
+from mex.models import Block, Transaction, Output, Address, Input
 import logging
-
 from mex.tools import batchwise
+
 
 log = logging.getLogger("mex.sync")
 
@@ -209,112 +208,6 @@ def sync_transactions():
     log.info("imported %s addresses" % addr_counter)
 
 
-def sync_streams():
-    api = get_client()
-    streams = api.liststreams("*", verbose=True)
-    for stream in streams:
-
-        # Key for update
-        name = stream.pop("name")
-
-        # Set fk by id
-        stream["createtxid_id"] = stream.pop("createtxid")
-        creators = stream.pop("creators")
-        stream_obj, created = Stream.objects.update_or_create(
-            name=name, defaults=stream
-        )
-
-        creator_objs = Address.objects.filter(address__in=creators)
-        if creator_objs.exists():
-            stream_obj.creators.add(*creator_objs)
-    log.info("imported %s streams" % len(streams))
-
-
-def sync_stream_items():
-    """Synchronize stream data for all monitored streams."""
-
-    api = get_client()
-    streams = Stream.objects.filter(monitor=True)
-    for stream_obj in streams:
-        log.info("import items for stream %s" % stream_obj.name)
-
-        try:
-            ch_height = int(
-                api.liststreams(stream_obj.name, verbose=True)[0]["confirmed"]
-            )
-        except Exception:
-            log.info("cannot get chain height for {} stream".format(stream_obj.name))
-            continue
-
-        db_height = StreamItem.objects.filter(stream=stream_obj).count()
-        log.info("Stream {} chain at {} - db at {}".format(stream_obj.name, ch_height, db_height))
-
-        if db_height >= ch_height:
-            continue
-
-        total_new_items = 0
-        iterations = 0
-        while True:
-
-            # abort after 10000 imports for chain sync
-            iterations += 1
-            if not iterations % 100:
-                break
-
-            raw_items = api.liststreamitems(
-                stream_obj.name,
-                verbose=True,
-                count=100,
-                start=db_height,
-                local_ordering=False,
-            )
-
-            if not raw_items:
-                break
-            new_stream_items = {}
-
-            # collect referenced outputs
-            txids_raw = [r["txid"] for r in raw_items]
-            outputs = Output.objects.filter(transaction_id__in=txids_raw).only(
-                "id", "transaction_id", "out_idx"
-            )
-            # Map txid/out_idx composite to primary key of Output
-            outputs = {f"{o.transaction_id}{o.out_idx}": o.pk for o in outputs}
-            for raw_item in raw_items:
-                if raw_item["confirmations"] == 0:
-                    continue
-
-                # Transform raw data
-                txid = raw_item.pop("txid")
-                vout = raw_item.pop("vout")
-
-                raw_item["output_id"] = outputs[f"{txid}{vout}"]
-                raw_item["stream_id"] = stream_obj.pk
-                raw_item["time"] = datetime.fromtimestamp(raw_item["time"], tz=pytz.utc)
-                del raw_item["blockhash"]
-                del raw_item["blockindex"]
-                del raw_item["blocktime"]
-                del raw_item["confirmations"]
-                del raw_item["timereceived"]
-
-                publishers = raw_item.pop("publishers")
-
-                s_item_obj = StreamItem(**raw_item)
-                new_stream_items[s_item_obj] = publishers
-
-            StreamItem.objects.bulk_create(
-                new_stream_items.keys(), ignore_conflicts=True
-            )
-            for item_obj, publishers in new_stream_items.items():
-                item_obj.publishers.add(*publishers)
-            total_new_items += len(new_stream_items.keys())
-            db_height += 100
-        if total_new_items:
-            log.info(
-                "imported %s items from stream %s" % (total_new_items, stream_obj.name)
-            )
-
-
 if __name__ == "__main__":
     import time
     import timeit
@@ -329,8 +222,6 @@ if __name__ == "__main__":
             clean_reorgs()
             sync_blocks()
             sync_transactions()
-            sync_streams()
-            sync_stream_items()
             stop = timeit.default_timer()
             runtime = stop - start
             log.info("finished sync round in %s seconds" % runtime)

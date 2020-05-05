@@ -4,12 +4,12 @@ import textwrap
 from _sha256 import sha256
 from binascii import unhexlify
 from hashlib import new
-
 import base58
+import bleach
 from django.utils.safestring import mark_safe
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
-from pygments.lexers.data import JsonLexer
+from pygments.lexers.data import JsonLdLexer
 
 from mex.custom_sort import make_custom_sort
 
@@ -75,24 +75,15 @@ custom_sort = make_custom_sort(
 
 
 def render_json(data):
-    # Convert the data to sorted, indented JSON
-    ds = custom_sort(data)
-    response = json.dumps(ds, sort_keys=False, indent=2)
-
-    # Truncate the data. Alter as needed
-    response = response[:5000]
-
-    # Get the Pygments formatter
-    formatter = HtmlFormatter(style="colorful")
-
-    # Highlight the data
-    response = highlight(response, JsonLexer(), formatter)
-
-    # Get the stylesheet
-    style = "<style>" + formatter.get_style_defs() + "</style><br>"
-
-    # Safe the output
-    return mark_safe(style + response)
+    data = custom_sort(data)
+    if hasattr(data, "get"):
+        data = data.get("json") or data.get("text")
+    text = json.dumps(data, sort_keys=False, indent=2)
+    formatter = HtmlFormatter(style="monokai", cssclass="metadata", wrapcode=False)
+    text = highlight(text, JsonLdLexer(), formatter)
+    style = "<style>" + formatter.get_style_defs() + "</style>"
+    text = (style + bleach.linkify(text)).strip()
+    return mark_safe(text)
 
 
 def iscc_clean(i):

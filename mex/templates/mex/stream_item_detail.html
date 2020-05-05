@@ -1,42 +1,57 @@
 {% extends "mex/base.html" %}
 {% load mex_tags %}
-
 {% block content %}
-    <h3 class="mt-4">
-        Stream Item Details
-    </h3>
-    <p><small><b>Keys:</b> {{ streamitem.dashed }}</small><br>
-        <small><b>TxID:</b> <a
-                href="{% url "transaction-detail" hash=streamitem.output.transaction_id %}?raw">{{ streamitem.output.transaction_id }}</a></small>
-    </p>
-    <pre style="padding: 10px 10px 10px 10px !important; background-color: aliceblue">{{ streamitem.data|render_json }}</pre>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>
+                <code><a href="{% url "stream-detail" stream=streamitem.stream %}">{{ streamitem.stream|upper }}://</a>{{ streamitem.keys|join:"-" }}</code>
+            </h3>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Metadata</h5>
+            <p class="card-text"><pre style="padding: 20px 0px 10px 20px !important; background-color: #272822 !important;"><code>{{ streamitem.data|render_json }}</code></pre></p>
+        </div>
+        <div class="card-footer text-muted">
+            <code>TXID: <a
+                    href="{% url "transaction-detail" hash=streamitem.txid %}?raw">{{ streamitem.txid }}</a>
+                OUTPUT: {{ streamitem.vout }}</code>
+        </div>
+    </div>
     {% if smartlicenses %}
-        <h3 class="mt-4">Matching SmartLicenses:</h3>
-        <table class="table">
-            <thead>
+            <div class="card mt-4">
+        <div class="card-header">
+            <h3>
+                Matching SmartLicenses
+            </h3>
+        </div>
+        <div class="card-body">
+        <table class="table table-sm table-striped table-dark table-hover">
+            <thead class="thead-light">
             <tr>
-                <th>License-ID</th>
+                <th>LicenseID</th>
                 <th>Rights</th>
                 <th>ISCC</th>
-                <th>Transaction Models</th>
+                <th>TM</th>
                 <th>Details</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody style="background-color: #272822">
             {% for sl in smartlicenses %}
                 <tr>
                     <td>
-                        <a href="/stream/smart-license/{{ sl.output.transaction_id }}:{{ sl.output.out_idx }}">{{ sl.keys.0|truncatechars:7 }}</a>
+                        <a style="color: #f92672" href="/stream/smart-license/{{ sl.txid }}:{{ sl.vout }}">{{ sl.keys.0|truncatechars:7 }}</a>
                     </td>
-                    <td>{{ sl.data.json.rights_modules }}</td>
-                    <td>{{ sl.keys.1 }}</td>
-                    <td>{{ sl.data.json.transaction_models.0 }}</td>
+                    <td style="color: #e6db74">{{ sl.data.json.rights_modules }}</td>
+                    <td style="color: #e6db74">{{ sl.keys.1 }}</td>
+                    <td style="color: #e6db74">{{ sl.data.json.transaction_models.0 }}</td>
                     <td>
-                        <a href="https://smartlicense.coblo.net/smartlicense/{{ sl.keys.0 }}">Read</a>
+                        <a style="color: #f92672" href="https://smartlicense.coblo.net/smartlicense/{{ sl.keys.0 }}">Read</a>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+        </div>
+    </div>
     {% endif %}
 {% endblock %}

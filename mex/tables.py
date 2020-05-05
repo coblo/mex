@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+import pytz
 from django.conf import settings
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_tables2 import tables, Column, DateTimeColumn, LinkColumn
-from mex.models import Block, Transaction, Address, Stream, StreamItem
+from mex.models import Block, Transaction, Address
 
 
 class BlockTable(tables.Table):
@@ -73,39 +76,69 @@ class AddressTable(tables.Table):
         return "%s %s" % (value, settings.MEX_SYMBOL)
 
 
-class StreamTable(tables.Table):
+class ListStreamTable(tables.Table):
 
-    name = LinkColumn(verbose_name="Stream")
-    description = Column(verbose_name="Description", orderable=False)
+    name = Column(verbose_name="Stream")
+    details = Column(verbose_name="Description")
+    creators = Column(verbose_name="Creator", accessor="creators__0")
+    items = Column()
+    restrict = Column(verbose_name="Open")
+
+    streams = {
+        "alias": "Address alias registrations",
+        "DOI": "Open Stream that maps DOI to ISCC",
+        "ISBN": "Open Stream that maps ISBN to ISCC",
+        "iscc": "Public ISCC Registry",
+        "smart-license": "Public Smart License Registry",
+        "test": "Stream for test data",
+        "timestamp": "Open timestamping with SHA-256",
+    }
 
     class Meta:
-        model = Stream
-        fields = ("name", "description", "creators", "items", "keys")
         attrs = {"class": "table table-sm table-striped table-hover"}
 
+    def render_name(self, value):
+        return format_html('<a href="/stream/{}">{}</a>', value, value)
 
-class StreamItemTable(tables.Table):
+    def render_details(self, value, record):
+        value = value.get("info")
+        if not value:
+            value = self.streams.get(record["name"])
+        return value
 
-    time = DateTimeColumn(
-        verbose_name="Time (UTC)", format="Y-m-d H:i:s", orderable=True, linkify=True,
-    )
-    keys = Column(verbose_name="Keys", orderable=False)
+    def render_restrict(self, value):
+        return not value["read"]
+
+
+class StreamItemApiTable(tables.Table):
+
+    txid = Column(verbose_name="TxID", orderable=False)
+    time = Column(verbose_name="Time (UTC)", orderable=True)
+    keys = Column(verbose_name="Key(s)", orderable=False)
     data = Column(verbose_name="Data", orderable=False)
 
     class Meta:
-        model = StreamItem
-        fields = ("txid", "time", "keys", "data")
         attrs = {"class": "table table-sm table-striped table-hover"}
-        order_by = "-time"
+        order_by = ("-time",)
 
     def render_txid(self, value):
         lnk = '<a href="/tx/{}">{}</a>'.format(value, value[:7])
         return mark_safe(lnk)
 
-    def render_keys(self, value):
+    def render_time(self, value):
+        value = datetime.fromtimestamp(value, tz=pytz.utc)
+        value = value.strftime("%Y-%m-%d %H:%M:%S")
+        return value
+
+    def render_keys(self, value, record):
         if isinstance(value, list):
             value = "-".join(value)
-        return value[:55]
+        value = value[:55]
+        key = "{}:{}".format(record["txid"], record["vout"])
+        stream = record["stream"]
+        lnk = '<a href="/stream/{}/{}">{}</a>'.format(stream, key, value)
+
+        return mark_safe(lnk)
 
     def render_data(self, value):
         if isinstance(value, str):

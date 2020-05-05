@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
 import datetime
-from functools import partial
-
-import ubjson
-from binascii import unhexlify
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, TemplateView
-from django_filters.views import FilterView
 from django_tables2 import MultiTableMixin, SingleTableView, SingleTableMixin
-from mex.filters import StreamItemFilter
-from mex.paginator import StreamPaginator
+from mcrpc.exceptions import RpcError
+from mex.filters import is_iscc
 from mex.rpc import get_client
+from mex.stream import LazyStream, TableDataLen
 from mex.tables import (
     BlockTable,
     TransactionTable,
     AddressTable,
-    StreamTable,
-    StreamItemTable,
+    StreamItemApiTable,
+    ListStreamTable,
 )
 from mex.models import Block, Transaction, Address, Output, Stream, StreamItem
-from mex.utils import public_key_to_address
+from mex.utils import public_key_to_address, iscc_split
 
 
 class StatusView(TemplateView):
@@ -82,31 +77,67 @@ class AddressListView(SingleTableView):
 class StreamTableView(SingleTableView):
     model = Stream
     template_name = "mex/stream_list2.html"
-    table_class = StreamTable
+    table_class = ListStreamTable
     queryset = Stream.objects.filter(show=True)
     paginate_by = 17
 
 
-class StreamItemTableView(SingleTableMixin, FilterView):
+class StreamsView(SingleTableMixin, TemplateView):
 
-    model = StreamItem
-    template_name = "mex/stream_item_list.html"
-    table_class = StreamItemTable
+    template_name = "mex/stream_list2.html"
+    table_class = ListStreamTable
     paginate_by = 17
-    filterset_class = StreamItemFilter
 
-    @property
-    def paginator_class(self):
-        return partial(StreamPaginator, stream=self.kwargs["stream"])
+    def get_table_data(self):
+        client = get_client()
+        streams = client.liststreams("*", verbose=True)
+        streams = [e for e in streams if e["name"] in ListStreamTable.streams]
+        return streams
 
-    def get_queryset(self):
-        stream = get_object_or_404(Stream, name=self.kwargs["stream"])
-        return StreamItem.objects.filter(stream=stream).only("time", "keys")
+
+class StreamItemApiTableView(SingleTableMixin, TemplateView):
+
+    template_name = "mex/stream_item_list.html"
+    table_class = StreamItemApiTable
+    paginate_by = 17
+
+    def get_table_data(self):
+        keys = self.request.GET.get("keys")
+        stream = self.kwargs["stream"]
+        if keys is None or not keys.strip():
+            sort = self.request.GET.get("sort", "-time")
+            stream_itr = LazyStream(self.kwargs["stream"])
+            if sort == "time":
+                stream_itr.descending = False
+            return TableDataLen(stream_itr)
+
+        client = get_client()
+        if is_iscc(keys):
+            keys_clean = iscc_split(keys)
+        else:
+            keys_clean = [keys.strip()]
+
+        results = []
+        for k in keys_clean:
+            result = client.liststreamkeyitems(stream, k, verbose=True)
+            results.extend(result)
+
+        seen = set()
+        unique = []
+        for item in results:
+            k = item["txid"] + str(item["vout"])
+            if k not in seen:
+                unique.append(item)
+            seen.add(k)
+        result = [dict(e, stream=stream) for e in unique]
+        return result
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["search_keys"] = self.request.GET.get("keys", None)
+        ctx["search_keys"] = self.request.GET.get("keys", "").strip()
         return ctx
+
+    set()
 
 
 class TokenListView(TemplateView):
@@ -250,37 +281,20 @@ class StreamItemDetail(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         tx, out_idx = self.kwargs.get("output").split(":")
-        output = Output.objects.get(transaction=tx, out_idx=out_idx)
-        ctx["streamitem"] = output.streamitem
-        if self.kwargs.get("stream") == "iscc":
-            cid = output.streamitem.keys[1]
-            smart_licenses = StreamItem.objects.filter(
-                keys__1__contains=cid, stream="smart-license"
-            )
-            ctx["smartlicenses"] = smart_licenses
-        return ctx
-
-
-class StreamDetailView(TemplateView):
-    template_name = "mex/stream_detail.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        api = get_client()
-        ctx["stream_details"] = api.liststreams(ctx["stream"])[0]
-        ctx["stream_items"] = list(reversed(api.liststreamitems(ctx["stream"])))
-        for key, item in enumerate(ctx["stream_items"]):
-            if "blocktime" in item:
-                ctx["stream_items"][key][
-                    "formatted_time"
-                ] = datetime.datetime.fromtimestamp(item["blocktime"])
-            if item["data"]:
-                try:
-                    ctx["stream_items"][key]["formatted_data"] = ubjson.loadb(
-                        unhexlify(item["data"])
-                    )
-                except Exception as e:
-                    ctx["stream_items"][key]["formatted_data"] = item["data"]
+        stream = self.kwargs.get("stream")
+        client = get_client()
+        res = client.liststreamtxitems(stream, [tx], verbose=True)[int(out_idx)]
+        res["stream"] = stream
+        ctx["streamitem"] = res
+        if stream == "iscc":
+            iscc_code = "-".join(res["keys"])
+            try:
+                smart_licenses = client.liststreamkeyitems(
+                    "smart-license", key=iscc_code, verbose=True
+                )
+                ctx["smartlicenses"] = smart_licenses
+            except RpcError:
+                pass
         return ctx
 
 
